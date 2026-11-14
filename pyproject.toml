@@ -1,0 +1,33 @@
+[project]
+name = "online-retail"
+version = "0.1.0"
+description = "Customer repurchase prediction with Online Retail II"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "pandas>=2.2,<3",
+    "openpyxl>=3.1,<4",
+    "pyarrow>=18,<24",
+    "scikit-learn>=1.6,<2",
+]
+
+[dependency-groups]
+dev = ["ruff>=0.11,<1", "pytest>=8,<10"]
+notebooks = ["ipykernel>=6,<8", "jupyterlab>=4,<5", "matplotlib>=3.9,<4", "seaborn>=0.13,<1"]
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/online_retail"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

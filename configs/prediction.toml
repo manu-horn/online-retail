@@ -1,0 +1,4 @@
+# Proposed v1 settings; validate against purchase cadence during EDA.
+lookback_days = 180
+horizon_days = 30
+snapshot_frequency = "monthly"

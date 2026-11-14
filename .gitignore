@@ -1,0 +1,31 @@
+# Python and tooling
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+.ipynb_checkpoints/
+
+# Data, trained models, and experiment outputs
+data/**
+!data/README.md
+models/
+artifacts/
+mlruns/
+mlartifacts/
+*.db
+docs/**
+
+# Local credentials and editor files
+.env
+.env.*
+!.env.example
+.aws/
+.DS_Store
+.idea/
+.vscode/
