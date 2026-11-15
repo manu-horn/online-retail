@@ -45,6 +45,18 @@ Keep reusable logic in the package and exploration in notebooks. Keep raw data,
 trained models, credentials, and experiment outputs out of Git. Clear notebook
 outputs and inspect notebooks for embedded data or secrets before committing.
 
+## Initial data cleansing
+
+```bash
+uv run --locked python -m online_retail.data.preprocess
+uv run --locked pytest -q
+```
+
+The loader reads both Excel sheets; preprocessing writes identified purchase
+lines to `data/interim/purchases.parquet` and sequential removal counts to
+`data/interim/purchases.report.json`. See [cleansing rules](data/README.md).
+Repeated lines with matching non-quantity fields are consolidated by summing quantity. Country encoding and customer features come later.
+
 ## Initial commit
 
 Once the environment checks pass, initialize Git if necessary, inspect staged
