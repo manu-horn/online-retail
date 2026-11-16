@@ -1,8 +1,9 @@
 # Online Retail: customer repurchase prediction
 
-Predict whether an existing customer purchases within the next **30 days** using
+Predict an identified customer’s next-purchase range (days **0–20**, **21–49**, or
+**no purchase within 50 days**) at weekly cutoffs using
 historical transactions from [UCI Online Retail II](https://archive.ics.uci.edu/dataset/502/online+retail+ii).
-The horizon is a proposal to validate during EDA. This repository will grow into
+See the current prediction contract for eligibility and temporal evaluation. This repository will grow into
 an end-to-end MLOps workflow, one milestone at a time.
 
 Read the [prediction contract](docs/problem-definition.md) and
@@ -29,7 +30,7 @@ runtime dependencies and `uv add --group dev` for development tools. Use
 ## Layout
 
 ```text
-configs/prediction.toml      proposed prediction windows
+configs/prediction.toml      weekly snapshot and chronological partition dates
 data/README.md              source attribution and local data conventions
 data/raw/                   original workbook, ignored by Git
 docs/problem-definition.md  target, cohort, leakage rules, evaluation

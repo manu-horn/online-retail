@@ -1,4 +1,5 @@
-# Proposed v1 settings; validate against purchase cadence during EDA.
-lookback_days = 180
-horizon_days = 30
-snapshot_frequency = "monthly"
+# Monday cutoffs; 50-day three-class outcomes are defined in features/snapshots.py.
+start_date = "2010-03-01"
+validation_start = "2010-12-01"
+validation_end = "2011-04-01"
+fit_date = "2011-06-01"
