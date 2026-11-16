@@ -99,13 +99,55 @@ def test_rfm_order_and_validation_transform_does_not_refit():
             "monetary_total": [10.0, 11.0, 100.0, 110.0, 1000.0, 1100.0],
         }
     )
-    segmenter = RFMSegmenter().fit(train)
+    segmenter = RFMSegmenter({"r": 3, "f": 3, "m": 3}).fit(train)
     scored = segmenter.transform(train)
-    assert scored.loc[0, "r_score"] == 3
-    assert scored.loc[5, "r_score"] == 1
-    assert scored.loc[0, "f_score"] == 1
-    assert scored.loc[5, "m_score"] == 3
+    assert scored.loc[0, "r_score"] == 100
+    assert scored.loc[5, "r_score"] == 0
+    assert scored.loc[0, "f_score"] == 0
+    assert scored.loc[5, "m_score"] == 100
     centers = {k: v.cluster_centers_.copy() for k, v in segmenter.models_.items()}
     segmenter.transform(train * 100)
     for key, model in segmenter.models_.items():
         assert (centers[key] == model.cluster_centers_).all()
+
+
+def test_component_normalization_with_different_cluster_counts():
+    from itertools import product
+
+    import numpy as np
+
+    values = pd.DataFrame(
+        list(product([1.0, 100.0], [1, 10, 100], [1.0, 10.0, 100.0, 1000.0])),
+        columns=["recency_days", "invoice_count", "monetary_total"],
+    )
+    model = RFMSegmenter({"r": 2, "f": 3, "m": 4}).fit(values)
+    scored = model.transform(values)
+    for name in ("r", "f", "m"):
+        assert scored[f"{name}_score"].min() == 0
+        assert scored[f"{name}_score"].max() == 100
+    assert np.allclose(scored.rfm_score, scored[["r_score", "f_score", "m_score"]].mean(axis=1))
+    edges = list(model.segment_edges_)
+    model.transform(values * 2)
+    assert model.segment_edges_ == edges
+
+
+def test_rfm_diagnostics_are_training_only_and_profiles_use_one_cutoff():
+    import pytest
+
+    from online_retail.analysis.rfm import cluster_diagnostics, recommend_clusters, segment_profiles
+
+    values = pd.DataFrame(
+        {
+            "recency_days": [1.0, 2.0, 3.0, 40.0, 45.0, 50.0, 200.0, 210.0, 220.0],
+            "invoice_count": [1, 2, 3, 5, 6, 7, 40, 50, 60],
+            "monetary_total": [10.0, 11.0, 12.0, 100.0, 110.0, 120.0, 1000.0, 1100.0, 1200.0],
+        }
+    )
+    diagnostics = cluster_diagnostics(values, max_k=4)
+    selected = recommend_clusters(diagnostics)
+    assert set(selected) == {"r", "f", "m"}
+    assert all(2 <= k <= 3 for k in selected.values())
+    for _, group in diagnostics.groupby("component"):
+        assert group.inertia.is_monotonic_decreasing
+    with pytest.raises(ValueError, match="one cutoff"):
+        segment_profiles(pd.DataFrame({"cutoff": [1, 2], "Customer ID": ["A", "A"]}))

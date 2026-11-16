@@ -17,7 +17,9 @@ from online_retail.features.snapshots import (
 )
 
 
-def build_feature_datasets(source: Path, output: Path, settings: dict) -> dict:
+def build_feature_datasets(
+    source: Path, output: Path, settings: dict, cluster_counts: dict[str, int]
+) -> dict:
     """Create separate validation and final-refit RFM artifacts and datasets."""
     data = pd.read_parquet(source)
     end = data.InvoiceDate.max().normalize()
@@ -27,8 +29,8 @@ def build_feature_datasets(source: Path, output: Path, settings: dict) -> dict:
     )
     if any(part.empty for part in parts.values()):
         raise ValueError("One or more partitions are empty; check coverage and configured dates")
-    initial = RFMSegmenter().fit(parts["train"])
-    final = RFMSegmenter().fit(parts["refit"])
+    initial = RFMSegmenter(cluster_counts).fit(parts["train"])
+    final = RFMSegmenter(cluster_counts).fit(parts["refit"])
     for name in parts:
         segmenter = initial if name in ("train", "validation") else final
         parts[name] = segmenter.transform(parts[name])
@@ -46,6 +48,9 @@ def build_feature_datasets(source: Path, output: Path, settings: dict) -> dict:
         "observation_end_exclusive": str(end),
         "settings": settings,
         "horizon_days": HORIZON.days,
+        "rfm_cluster_counts": cluster_counts,
+        "rfm_scoring": "equal-weight mean of component ranks normalized to 0–100",
+        "rfm_segment_edges": {"train": initial.segment_edges_, "refit": final.segment_edges_},
         "feature_columns": [c for c in parts["train"] if c not in [*KEYS, TARGET]],
         "keys": KEYS,
         "target": TARGET,

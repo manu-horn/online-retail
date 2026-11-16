@@ -1,60 +1,112 @@
-# Data
+# Data and generated datasets
 
 Source: [UCI Online Retail II](https://archive.ics.uci.edu/dataset/502/online+retail+ii).
-
 Citation: Chen, D. (2012). Online Retail II [Dataset]. UCI Machine Learning
-Repository. https://doi.org/10.24432/C5CG6D.
-The dataset is distributed under CC BY 4.0; preserve attribution in derived outputs.
+Repository. https://doi.org/10.24432/C5CG6D. License: CC BY 4.0; preserve attribution.
 
-Place the original `online_retail_II.xlsx` in `data/raw/`. It is already present
-in this workspace. Keep it immutable and out of Git. Later ingestion will record
-its checksum and sheet names, then write normalized Parquet to `data/interim/`
-and customer snapshots to `data/processed/`.
+Data files and fitted artifacts are ignored by Git. Keep the raw workbook immutable.
 
-Inspect both workbook sheets before combining: check actual column names, date
-ranges, overlap, missing customer IDs, cancellations, returns, and duplicates.
-Do not assume the website's column names match the workbook exactly. Do not
-drop identical-looking invoice lines until their meaning has been investigated.
+## Files
 
-## Initial purchase cleansing
+| Location | Contents |
+|---|---|
+| `raw/online_retail_II.xlsx` | Original workbook; both year worksheets are read |
+| `interim/purchases.parquet` | Cleaned positive purchase lines, with repeated matching lines consolidated |
+| `interim/purchases.report.json` | Source checksum, exclusion counts, aggregation counts and quality checks |
+| `interim/customers.parquet` | Exploratory full-history customer table, when saved from notebook 02 |
+| `processed/train.parquet` | Initial training customer-week snapshots |
+| `processed/validation.parquet` | Later snapshots, scored with train-fitted RFM segmentation |
+| `processed/refit.parquet` | All mature pre-June snapshots for final model fitting; overlaps train/validation |
+| `processed/test.parquet` | Final held-out snapshots, scored with refit-fitted RFM segmentation |
+| `processed/train_rfm.pkl` | Initial training-fitted component clusters and score boundaries |
+| `processed/refit_rfm.pkl` | Final refit-fitted clusters and score boundaries |
+| `processed/rfm_diagnostics.json` | Training-only candidate cluster counts, inertia, silhouette and group sizes |
+| `processed/manifest.json` | Source hash, observation boundary, settings, schema roles, sizes and RFM fit details |
 
-From the repository root, run:
+Pickle files must only be loaded from trusted sources. The manifest is the authority
+for the generated dataset version; counts below describe the current build.
+
+## Cleansing
+
+From the repository root:
 
 ```bash
 uv run --locked python -m online_retail.data.preprocess
 ```
 
-This reads **both** workbook sheets and creates `data/interim/purchases.parquet`
-plus `data/interim/purchases.report.json` (both ignored by Git). The report records
-source SHA-256, input/output sizes, missing values, duplicate counts, and sequential
-removal counts. Rules overlap in the source; each discarded row is counted only
-under the first matching rule, so counts will differ from standalone EDA counts.
+Read both workbook sheets; exclude missing customer IDs, missing essential purchase
+fields, nonfinite quantities/prices, cancellation-prefixed invoices, quantity or
+price <= 0, and stock codes TEST001, TEST002, ADJUST2, BANK CHARGES.
+Keep missing descriptions and recorded countries. Stock-code length is not a filter.
 
-Exclude missing customer IDs, missing essential purchase fields, nonfinite
-quantity/price, cancellation-prefixed invoices (case-insensitive), quantities
-or prices <= 0, and stock codes TEST001, TEST002, ADJUST2, BANK CHARGES.
-These stock-code decisions are explicit assumptions from the initial audit.
-Keep missing descriptions and countries including Unspecified.
-After filtering, consolidate lines whose fields all match except Quantity by
-summing Quantity. Different prices, descriptions, dates, customers, or countries
-remain separate. Missing descriptions participate in grouping. This preserves
-recorded quantity and sales value; it does not establish the true quantity sold.
-The report separates excluded rows from rows consolidated by aggregation.
+Sum quantities when all other line fields match; differing prices or metadata stay
+separate. This preserves recorded sales value without resolving whether source
+repetitions were legitimate. Exclusion counts are sequential and disjoint;
+consolidation counts are recorded separately. Raw returns remain in the workbook.
 
-Output types: Invoice, StockCode, Description, Customer ID, and Country use
-pandas nullable strings; Quantity is int64; InvoiceDate is datetime64; Price
-is float64. Fractional purchase quantities raise an error instead of truncating.
-The workbook column name `Customer ID` is retained for compatibility.
-Do not group countries, encode features, or aggregate customer records yet.
-Positive-price postage or gift codes are retained unless explicitly excluded;
-zero-price gifts are already removed by the price rule. Code length is not a filter.
+Text columns use nullable strings; Quantity is int64, Price float64, InvoiceDate
+datetime. Invalid numeric/date values and fractional purchase quantities raise errors.
+The column name `Customer ID` is retained. Purchase value excludes returns and is
+not net retailer revenue. Records without identified customers are outside modeling.
 
-The loader validates column names and the cleaner checks that retained invoices
-map to one customer each. Invalid numeric/date strings raise an error rather than
-being silently converted into missing values. Raw cancellations remain available
-in the workbook for a later returns/cancellation analysis.
+## Processed snapshot contract
 
-A row is a recorded invoice line, not necessarily a unique product within an
-invoice. Customer frequency must eventually count distinct invoices, not rows.
-Date quartiles alone do not establish seasonality: compare monthly counts with
-coverage and the incomplete first/last months before drawing that conclusion.
+Run the RFM diagnostics and Feature Engineering sections of
+[`02_stats_and_fe.ipynb`](../notebooks/02_stats_and_fe.ipynb) to regenerate processed
+files. Dates come from `configs/prediction.toml`. All non-RFM features are built
+point-in-time; RFM cluster-count selection uses training snapshots only.
+
+Each row is one `(Customer ID, cutoff)` pair. Every Monday, include all customers
+with any qualifying purchase strictly before the midnight cutoff. Use all observed
+history plus 30/90-day activity. Include sparse and long-inactive customers.
+
+`NextPurchaseRange` measures the first purchase relative to cutoff:
+
+| Class | Outcome interval |
+|---|---|
+| 0 | `[cutoff, cutoff + 21 days)` — days 0–20 |
+| 1 | `[cutoff + 21 days, cutoff + 50 days)` — days 21–49 |
+| 2 | No purchase in `[cutoff, cutoff + 50 days)` |
+
+Only fully observed labels are retained. Observation ends exclusively at
+2011-12-09 00:00 in the current build, conservatively excluding the last partial
+day. Class 2 is not permanent churn. Source coverage is assumed continuous.
+
+| Dataset | Rows | Distinct customers | Monday cutoffs |
+|---|---:|---:|---|
+| Train | 92,319 | 3,687 | 2010-03-01–2010-10-11 |
+| Validation | 75,608 | 4,693 | 2010-12-06–2011-03-28 |
+| Refit | 205,510 | 4,753 | 2010-03-01–2011-04-11 |
+| Test | 104,034 | 5,558 | 2011-06-06–2011-10-17 |
+
+Training labels finish by December 1, 2010. Refit labels finish by June 1, 2011.
+Refit is not an independent evaluation split. Gaps between cutoff ranges enforce
+label availability; their earlier transactions remain usable as feature history.
+Customers may occur across dates and splits. Weekly observations are correlated.
+
+## Feature and scoring conventions
+
+The current schema has 27 predictors. Use `manifest["feature_columns"]` to select
+them; never include Customer ID, cutoff or NextPurchaseRange in classifier inputs.
+Groups include historical RFM, recent activity, basket metrics, purchase-day gaps,
+history indicators, annual calendar features and relative RFM scores.
+Missing gaps represent insufficient history and remain missing; do not replace them
+with zero. First observed purchase does not establish true customer tenure.
+
+RFM diagnostics compare k=1–6; the current elbow heuristic selects R=2, F=2, M=2.
+Ordered component ranks are normalized to 0–100 and equally averaged. Score tertiles
+learned from the fitting partition define low/medium/high relative segments. Ties
+stay together, so groups need not be equally sized. Validation uses the train fit;
+test uses the refit fit, with the selected cluster counts unchanged.
+
+See [feature definitions](../docs/features.md) and
+[prediction contract](../docs/problem-definition.md) for the full decisions.
+
+## Analysis before modeling
+
+[`03_eda_processed.ipynb`](../notebooks/03_eda_processed.ipynb) explores training
+features and outcomes. It does not load validation, refit or test tables. Pooled
+plots describe customer-week instances; single-cutoff plots describe distinct
+customers. Associations are descriptive, not causal or validated model performance.
+Keep the final test untouched. Learn imputation, encoding and any feature selection
+inside chronological training folds when model building begins.
