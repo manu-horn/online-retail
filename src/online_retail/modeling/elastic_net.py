@@ -71,6 +71,19 @@ def run_elastic_net(data_dir: Path, output_dir: Path) -> dict:
     predictions.to_parquet(output_dir / "validation_predictions.parquet", index=False)
     with (output_dir / "model.pkl").open("wb") as handle:
         pickle.dump(model, handle)
+    (output_dir / "run.json").write_text(
+        json.dumps(
+            {
+                "model": "logistic_elastic_net",
+                "feature_columns": columns,
+                "best_params": {"C": float(best.C), "l1_ratio": float(best.l1_ratio)},
+                "objective_metric": "equal_fold_mean_weekly_log_loss",
+                "random_state": 42,
+                "test_evaluated": False,
+            },
+            indent=2,
+        )
+    )
     return {
         "candidate_metrics": ranking,
         "validation_metrics": metrics,

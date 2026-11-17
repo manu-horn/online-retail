@@ -1,0 +1,2 @@
+# Local defaults. MLFLOW_TRACKING_URI and MLFLOW_EXPERIMENT_NAME override these.
+experiment_name = "online-retail-repurchase"

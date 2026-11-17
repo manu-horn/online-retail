@@ -39,8 +39,8 @@ Use Python 3.12 and uv. From the repository root:
 ```bash
 uv sync --locked --group notebooks
 uv run --locked pytest -q
-uv run --locked ruff check src tests
-uv run --locked ruff format --check src tests
+uv run --locked ruff check src scripts tests
+uv run --locked ruff format --check src scripts tests
 uv run --locked jupyter lab
 ```
 
@@ -84,7 +84,9 @@ estimate. Keep model/threshold selection on development data.
 | `src/online_retail/analysis/` | Reusable exploratory plots and diagnostics |
 | `src/online_retail/features/` | Past-only snapshots, labels, RFM and dataset building |
 | `src/online_retail/modeling/` | Preprocessing, models, temporal folds, metrics and final policy |
-| `tests/` | Cleansing, feature-boundary, temporal, metric and policy checks |
+| `scripts/` | Thin entrypoints for tracked training, saved-result imports and evaluation |
+| `configs/tracking.toml` | MLflow experiment configuration |
+| `tests/` | Cleansing, feature-boundary, temporal, metric, policy and tracking checks |
 | `data/` | Raw/interim/processed data, Git-ignored except its README |
 | `artifacts/` | Fitted models, search reports, predictions and frozen policy; Git-ignored |
 
@@ -96,6 +98,7 @@ estimate. Keep model/threshold selection on development data.
 - [Modeling workflow](docs/modeling.md): trials, CV, calibration, refitting and threshold selection.
 - [Results and saved artifacts](docs/results.md): final metrics, file meanings and loading example.
 - [Evaluation notebook guide](docs/evaluation.md): weekly/group metrics, SHAP and interpretation.
+- [MLflow guide](docs/mlflow.md): tracked scripts, local UI and saved-model loading.
 - [MLOps roadmap](docs/roadmap.md): completed stages and next work.
 - [AWS batch workflow](docs/aws-batch-workflow.md): phased local-to-cloud implementation plan.
 [Notebook 05](notebooks/05_evaluation.ipynb) evaluates the frozen model and threshold:
@@ -116,3 +119,25 @@ training/scoring commands, then versioning/MLflow, containers/CI and a small
 S3 → SageMaker Training → Batch Transform demonstration. Weekly inference is
 separate from retraining. AWS resources and orchestration are planned, not yet
 implemented; interactive services are deferred.
+
+## MLflow and executable workflows
+
+Reusable orchestration and logging live in `src/online_retail/modeling/`; `scripts/`
+provides thin entrypoints. From the repository root:
+
+```bash
+uv run python scripts/track_results.py artifacts/final_roc_policy --name frozen-xgboost-import
+uv run python scripts/train.py baseline --output artifacts/runs/baseline-001
+uv run python scripts/evaluate.py --output artifacts/runs/evaluation-001
+uv run mlflow ui --backend-store-uri sqlite:///mlflow.db --host 127.0.0.1 --port 5000
+```
+
+Run each shell command separately. To chain commands, use `&&`; a trailing `\`
+alone continues the same command and can cause an argument-parsing error.
+
+Visit http://127.0.0.1:5000. Runs record parameters, metrics, model/schema, reports,
+code/environment and data checksums. Tree searches include model and completed-trial
+summary runs. Imports log existing results without retraining or reselecting the
+policy. Models expose probabilities; thresholds remain separate artifacts.
+SQLite metadata (`mlflow.db`) and `mlartifacts/` are local and ignored by Git.
+See the [MLflow guide](docs/mlflow.md) for configuration, provenance limits and loading.
