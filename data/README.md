@@ -16,7 +16,7 @@ Data files and fitted artifacts are ignored by Git. Keep the raw workbook immuta
 | `interim/customers.parquet` | Exploratory full-history customer table, when saved from notebook 02 |
 | `processed/train.parquet` | Initial training customer-week snapshots |
 | `processed/validation.parquet` | Later snapshots, scored with train-fitted RFM segmentation |
-| `processed/refit.parquet` | All mature pre-June snapshots for final model fitting; overlaps train/validation |
+| `processed/refit.parquet` | Mature pre-June pool; final fitting reserves policy weeks and a maturity gap; overlaps train/validation |
 | `processed/test.parquet` | Final held-out snapshots, scored with refit-fitted RFM segmentation |
 | `processed/train_rfm.pkl` | Initial training-fitted component clusters and score boundaries |
 | `processed/refit_rfm.pkl` | Final refit-fitted clusters and score boundaries |
@@ -109,3 +109,11 @@ plots describe customer-week instances; single-cutoff plots describe distinct
 customers. Associations are descriptive, not causal or validated model performance.
 Keep the final test untouched. Learn imputation, encoding and any feature selection
 inside chronological training folds when model building begins.
+
+## Final experiment usage
+
+The refit table is a candidate fitting pool, not the exact final fit population.
+The frozen model uses 146,415 snapshots through January 10, 2011. Its policy
+holdout reserves 28,001 snapshots from March 7–April 11, with training labels
+mature before March 7. Final test has been evaluated with frozen settings.
+See [modeling](../docs/modeling.md) and [saved results](../docs/results.md).

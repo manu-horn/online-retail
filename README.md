@@ -1,96 +1,102 @@
 # Online Retail: customer repurchase prediction
 
-Predict whether an identified customer will purchase in the **next 50 days**
-(binary target: purchase = 1, no purchase = 0) at weekly cutoffs using
-historical transactions from [UCI Online Retail II](https://archive.ics.uci.edu/dataset/502/online+retail+ii).
-See the current prediction contract for eligibility and temporal evaluation. This repository will grow into
-an end-to-end MLOps workflow, one milestone at a time.
+Predict whether an identified customer will purchase in the **next 50 days**, using
+[UCI Online Retail II](https://archive.ics.uci.edu/dataset/502/online+retail+ii).
+Every Monday, build a customer snapshot from earlier purchases. The binary target
+is 1 for a purchase in `[cutoff, cutoff + 50 days)` and 0 otherwise. Include sparse
+and long-inactive customers; no purchase within the horizon is not permanent churn.
 
-Read the [prediction contract](docs/problem-definition.md) and
-[roadmap](docs/roadmap.md) before modeling. A simple logistic baseline is available in `notebooks/04_modeling.ipynb`.
+The project currently covers cleansing, customer analysis, feature engineering,
+chronological model tuning and a frozen-policy test evaluation. Deployment and
+operational MLOps remain future work.
 
-## Environment
+## Current result
 
-Use Python 3.12 and [uv](https://docs.astral.sh/uv/). `pyproject.toml` declares
-dependencies; commit `uv.lock` to retain the resolved versions.
+**XGBoost** was selected using temporal CV ROC-AUC. After refitting, a separate
+policy holdout selected threshold **0.62**, then the frozen model and threshold
+were evaluated on test without further selection.
+
+| Test metric | Result |
+|---|---:|
+| ROC-AUC | 0.7948 |
+| Average precision | 0.6504 |
+| Log loss | 0.5098 |
+| Buyer precision / recall at 0.62 | 0.7077 / 0.4224 |
+
+Under illustrative TN/FP/FN/TP costs of £0/£15/£25/£10, mean test decision cost is
+£5.77 per customer-week versus £6.77 for contacting nobody. These are hypothetical
+costs, not measured campaign ROI. The final fit reserves policy data and a
+label-maturity gap; it does not fit every row in the generated refit table.
+
+The saved model is `artifacts/final_roc_policy/model.pkl`; threshold and feature
+order are in `frozen_policy.json` in the same directory. These files are local and
+Git-ignored. See the [results and artifact guide](docs/results.md).
+
+## Environment and checks
+
+Use Python 3.12 and uv. From the repository root:
 
 ```bash
 uv sync --locked --group notebooks
-uv run --locked python -c "import online_retail; print(online_retail.__doc__)"
-uv run --locked ruff check .
-uv run --locked ruff format --check .
+uv run --locked pytest -q
+uv run --locked ruff check src tests
+uv run --locked ruff format --check src tests
 uv run --locked jupyter lab
 ```
 
-Select the project's `.venv` Python kernel when opening notebooks. Development
-tools install by default; the `notebooks` group is optional. Use `uv add` to add
-runtime dependencies and `uv add --group dev` for development tools. Use
-`uv lock` when intentionally changing dependency resolution.
+Choose the project's `.venv` kernel. Runtime dependencies include pandas,
+scikit-learn, Optuna, LightGBM and XGBoost; `uv.lock` fixes resolved versions.
+Development tools install by default; notebook tools use the optional group.
+The lint commands above cover package code and tests; exploratory notebook style
+is not included in those checks.
 
-## Layout
+## Run the workflow
 
-```text
-configs/prediction.toml      weekly snapshot and chronological partition dates
-data/README.md              source attribution and local data conventions
-data/raw/                   original workbook, ignored by Git
-docs/problem-definition.md  target, cohort, leakage rules, evaluation
-docs/roadmap.md             staged MLOps work
-notebooks/01_eda.ipynb       existing exploratory notebook
-src/online_retail/          installable Python package
-pyproject.toml              dependencies and tooling configuration
-uv.lock                    exact dependency resolution
-```
+1. Place the original workbook at `data/raw/online_retail_II.xlsx`.
+2. Run `uv run --locked python -m online_retail.data.preprocess` to read both sheets,
+   clean purchase lines and save the source checksum and cleansing report.
+3. Use the notebooks in order:
 
-Add pipeline modules and `tests/` with the first executable data pipeline.
-Keep reusable logic in the package and exploration in notebooks. Keep raw data,
-trained models, credentials, and experiment outputs out of Git. Clear notebook
-outputs and inspect notebooks for embedded data or secrets before committing.
+| Notebook | Purpose |
+|---|---|
+| [01_eda](notebooks/01_eda.ipynb) | Raw-data inspection |
+| [02_stats_and_fe](notebooks/02_stats_and_fe.ipynb) | Sales/customer analysis, RFM diagnostics and processed snapshot generation |
+| [03_eda_processed](notebooks/03_eda_processed.ipynb) | Training-feature distributions, target relationships and multicollinearity |
+| [04_modeling](notebooks/04_modeling.ipynb) | Baselines, tuning, calibration diagnostics, policy selection and test evaluation |
 
-## Initial data cleansing
+Every feature uses past transactions; every label needs 50 complete future days.
+Expanding temporal folds preserve scoring dates and label maturity. Logistic
+models use fold-fitted transforms/scaling; trees preserve original feature scales.
+The final search maximizes mean weekly ROC-AUC with 15 Optuna trials per tree
+family. Calibration plots are diagnostics; no probability recalibration was fitted.
 
-```bash
-uv run --locked python -m online_retail.data.preprocess
-uv run --locked pytest -q
-```
+Notebook 04 loads an existing final report on rerun. Its ROC-AUC search has a
+separate rerun switch; earlier experiment cells can still retrain. Test has already
+been evaluated: do not retune using its outcomes and reuse it as an untouched final
+estimate. Keep model/threshold selection on development data.
 
-The loader reads both Excel sheets; preprocessing writes identified purchase
-lines to `data/interim/purchases.parquet` and sequential removal counts to
-`data/interim/purchases.report.json`. See [cleansing rules](data/README.md).
-Repeated lines with matching non-quantity fields are consolidated by summing quantity. Country encoding and customer features come later.
+## Project map
 
-## Initial commit
+| Location | Contents |
+|---|---|
+| `configs/prediction.toml` | Snapshot and chronological partition dates |
+| `src/online_retail/data/` | Loading and cleansing |
+| `src/online_retail/analysis/` | Reusable exploratory plots and diagnostics |
+| `src/online_retail/features/` | Past-only snapshots, labels, RFM and dataset building |
+| `src/online_retail/modeling/` | Preprocessing, models, temporal folds, metrics and final policy |
+| `tests/` | Cleansing, feature-boundary, temporal, metric and policy checks |
+| `data/` | Raw/interim/processed data, Git-ignored except its README |
+| `artifacts/` | Fitted models, search reports, predictions and frozen policy; Git-ignored |
 
-Once the environment checks pass, initialize Git if necessary, inspect staged
-changes, and create the foundation commit:
+## Documentation
 
-```bash
-git init -b main
-git add .gitignore .python-version pyproject.toml uv.lock README.md configs docs src data/README.md
-git diff --cached --stat
-git diff --cached
-git commit -m "chore: bootstrap retail repurchase project"
-```
+- [Prediction contract](docs/problem-definition.md): population, target and time boundaries.
+- [Data guide](data/README.md): provenance, cleansing and dataset schema.
+- [Feature definitions](docs/features.md): behavioral features and RFM segmentation.
+- [Modeling workflow](docs/modeling.md): trials, CV, calibration, refitting and threshold selection.
+- [Results and saved artifacts](docs/results.md): final metrics, file meanings and loading example.
+- [MLOps roadmap](docs/roadmap.md): completed stages and next work.
 
-The existing notebook is intentionally left out of this explicit first staging
-command until its contents and outputs have been reviewed.
-
-## Modeling
-
-`notebooks/04_modeling.ipynb` starts with an unweighted L2 logistic probability
-baseline and a prior-probability reference. Preprocessing fits inside chronological
-folds. Validation metrics and calibration diagnostics are saved under
-`artifacts/logistic_baseline/`; the baseline does not evaluate final test. No search,
-class weighting, threshold tuning or campaign policy is introduced yet.
-
-Notebook 04 also compares LightGBM, XGBoost and Random Forest using seeded Optuna
-searches over the existing expanding temporal folds. Selection minimizes mean
-weekly log loss; reports include probability quality, ranking and fixed-threshold
-classification metrics. Outputs are saved in `artifacts/tree_models/` and
-`artifacts/model_comparison.csv`. The initial comparison defers campaign costs; the final experiment below adds them.
-
-The final ROC-AUC experiment in notebook 04 tunes tree models by mean weekly
-ROC-AUC, reserves a later policy holdout after refitting, and evaluates the frozen
-model/threshold on test. Costs are illustrative (£0/£15/£25/£10 for TN/FP/FN/TP).
-The final fit excludes policy weeks and their label-maturity gap; it does not use
-all refit rows. See `docs/modeling.md` for dates and limitations. Final artifacts
-live under `artifacts/final_roc_policy/`.
+Keep raw data, credentials and trained artifacts out of Git. Review notebook
+outputs before committing. `docs/` is currently also Git-ignored; documentation
+changes remain local unless that repository rule is changed explicitly.
