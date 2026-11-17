@@ -96,3 +96,8 @@ estimate. Keep model/threshold selection on development data.
 - [Modeling workflow](docs/modeling.md): trials, CV, calibration, refitting and threshold selection.
 - [Results and saved artifacts](docs/results.md): final metrics, file meanings and loading example.
 - [MLOps roadmap](docs/roadmap.md): completed stages and next work.
+[Notebook 05](notebooks/05_evaluation.ipynb) evaluates the frozen model and threshold:
+overall curves/calibration diagnostics, weekly performance, past-invoice groups and
+customers seen/unseen in the actual final fit. It verifies saved predictions and
+exports tables to `artifacts/evaluation/`, without training or threshold selection.
+See [diagnostic findings](docs/results.md#frozen-model-diagnostic-evaluation).
