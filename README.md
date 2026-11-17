@@ -95,9 +95,15 @@ estimate. Keep model/threshold selection on development data.
 - [Feature definitions](docs/features.md): behavioral features and RFM segmentation.
 - [Modeling workflow](docs/modeling.md): trials, CV, calibration, refitting and threshold selection.
 - [Results and saved artifacts](docs/results.md): final metrics, file meanings and loading example.
+- [Evaluation notebook guide](docs/evaluation.md): weekly/group metrics, SHAP and interpretation.
 - [MLOps roadmap](docs/roadmap.md): completed stages and next work.
 [Notebook 05](notebooks/05_evaluation.ipynb) evaluates the frozen model and threshold:
 overall curves/calibration diagnostics, weekly performance, past-invoice groups and
 customers seen/unseen in the actual final fit. It verifies saved predictions and
 exports tables to `artifacts/evaluation/`, without training or threshold selection.
 See [diagnostic findings](docs/results.md#frozen-model-diagnostic-evaluation).
+
+Notebook 05 uses the standard SHAP library for group beeswarms and individual
+waterfall examples on a reproducible test-snapshot sample. Contributions are
+checked against frozen predictions; they explain model behavior, not causal
+effects. Tables are saved in `artifacts/evaluation/shap/`.
