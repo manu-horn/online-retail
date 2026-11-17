@@ -97,6 +97,7 @@ estimate. Keep model/threshold selection on development data.
 - [Results and saved artifacts](docs/results.md): final metrics, file meanings and loading example.
 - [Evaluation notebook guide](docs/evaluation.md): weekly/group metrics, SHAP and interpretation.
 - [MLOps roadmap](docs/roadmap.md): completed stages and next work.
+- [AWS batch workflow](docs/aws-batch-workflow.md): phased local-to-cloud implementation plan.
 [Notebook 05](notebooks/05_evaluation.ipynb) evaluates the frozen model and threshold:
 overall curves/calibration diagnostics, weekly performance, past-invoice groups and
 customers seen/unseen in the actual final fit. It verifies saved predictions and
@@ -107,3 +108,11 @@ Notebook 05 uses the standard SHAP library for group beeswarms and individual
 waterfall examples on a reproducible test-snapshot sample. Contributions are
 checked against frozen predictions; they explain model behavior, not causal
 effects. Tables are saved in `artifacts/evaluation/shap/`.
+
+## Next implementation milestone
+
+Follow the [AWS batch workflow roadmap](docs/aws-batch-workflow.md). Start with local
+training/scoring commands, then versioning/MLflow, containers/CI and a small
+S3 → SageMaker Training → Batch Transform demonstration. Weekly inference is
+separate from retraining. AWS resources and orchestration are planned, not yet
+implemented; interactive services are deferred.
