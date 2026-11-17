@@ -96,7 +96,3 @@ estimate. Keep model/threshold selection on development data.
 - [Modeling workflow](docs/modeling.md): trials, CV, calibration, refitting and threshold selection.
 - [Results and saved artifacts](docs/results.md): final metrics, file meanings and loading example.
 - [MLOps roadmap](docs/roadmap.md): completed stages and next work.
-
-Keep raw data, credentials and trained artifacts out of Git. Review notebook
-outputs before committing. `docs/` is currently also Git-ignored; documentation
-changes remain local unless that repository rule is changed explicitly.
