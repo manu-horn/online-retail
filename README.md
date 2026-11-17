@@ -79,5 +79,18 @@ command until its contents and outputs have been reviewed.
 `notebooks/04_modeling.ipynb` starts with an unweighted L2 logistic probability
 baseline and a prior-probability reference. Preprocessing fits inside chronological
 folds. Validation metrics and calibration diagnostics are saved under
-`artifacts/logistic_baseline/`; final test data remains untouched. No search,
+`artifacts/logistic_baseline/`; the baseline does not evaluate final test. No search,
 class weighting, threshold tuning or campaign policy is introduced yet.
+
+Notebook 04 also compares LightGBM, XGBoost and Random Forest using seeded Optuna
+searches over the existing expanding temporal folds. Selection minimizes mean
+weekly log loss; reports include probability quality, ranking and fixed-threshold
+classification metrics. Outputs are saved in `artifacts/tree_models/` and
+`artifacts/model_comparison.csv`. The initial comparison defers campaign costs; the final experiment below adds them.
+
+The final ROC-AUC experiment in notebook 04 tunes tree models by mean weekly
+ROC-AUC, reserves a later policy holdout after refitting, and evaluates the frozen
+model/threshold on test. Costs are illustrative (£0/£15/£25/£10 for TN/FP/FN/TP).
+The final fit excludes policy weeks and their label-maturity gap; it does not use
+all refit rows. See `docs/modeling.md` for dates and limitations. Final artifacts
+live under `artifacts/final_roc_policy/`.

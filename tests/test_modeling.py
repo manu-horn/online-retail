@@ -55,3 +55,14 @@ def test_probability_metrics_and_argmax_metrics_are_distinct():
     assert first["log_loss"] < second["log_loss"]
     assert first["brier_score"] == pytest.approx(0.04)
     assert first["brier_score"] < second["brier_score"]
+
+
+def test_expanded_binary_metrics_match_confusion_counts():
+    data = pd.DataFrame(
+        {"cutoff": pd.to_datetime(["2011-01-03"] * 4), "RepurchaseWithin50Days": [0, 0, 1, 1]}
+    )
+    metrics = evaluate(data, [[0.9, 0.1], [0.2, 0.8], [0.7, 0.3], [0.1, 0.9]])
+    assert [metrics[k] for k in ("tn", "fp", "fn", "tp")] == [1, 1, 1, 1]
+    assert metrics["class_1_precision"] == metrics["class_1_recall"] == 0.5
+    assert metrics["micro_f1"] == metrics["accuracy"] == 0.5
+    assert metrics["weekly_log_loss"] == pytest.approx(metrics["log_loss"])

@@ -11,6 +11,9 @@ dependencies = [
     "scikit-learn>=1.6,<2",
     "seaborn>=0.13.2",
     "threadpoolctl>=3.1,<4",
+    "optuna>=5.1.0",
+    "lightgbm>=4.7.0",
+    "xgboost>=3.4.1",
 ]
 
 [dependency-groups]
