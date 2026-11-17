@@ -1,13 +1,13 @@
 # Online Retail: customer repurchase prediction
 
-Predict an identified customer’s next-purchase range (days **0–20**, **21–49**, or
-**no purchase within 50 days**) at weekly cutoffs using
+Predict whether an identified customer will purchase in the **next 50 days**
+(binary target: purchase = 1, no purchase = 0) at weekly cutoffs using
 historical transactions from [UCI Online Retail II](https://archive.ics.uci.edu/dataset/502/online+retail+ii).
 See the current prediction contract for eligibility and temporal evaluation. This repository will grow into
 an end-to-end MLOps workflow, one milestone at a time.
 
 Read the [prediction contract](docs/problem-definition.md) and
-[roadmap](docs/roadmap.md) before modeling. There is no trained model yet.
+[roadmap](docs/roadmap.md) before modeling. A simple logistic baseline is available in `notebooks/04_modeling.ipynb`.
 
 ## Environment
 
@@ -73,3 +73,11 @@ git commit -m "chore: bootstrap retail repurchase project"
 
 The existing notebook is intentionally left out of this explicit first staging
 command until its contents and outputs have been reviewed.
+
+## Modeling
+
+`notebooks/04_modeling.ipynb` starts with an unweighted L2 logistic probability
+baseline and a prior-probability reference. Preprocessing fits inside chronological
+folds. Validation metrics and calibration diagnostics are saved under
+`artifacts/logistic_baseline/`; final test data remains untouched. No search,
+class weighting, threshold tuning or campaign policy is introduced yet.

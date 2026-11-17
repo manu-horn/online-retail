@@ -54,6 +54,11 @@ def build_feature_datasets(
         "feature_columns": [c for c in parts["train"] if c not in [*KEYS, TARGET]],
         "keys": KEYS,
         "target": TARGET,
+        "schema_version": 2,
+        "target_classes": {
+            "0": "no purchase in [cutoff, cutoff + 50 days)",
+            "1": "purchase in [cutoff, cutoff + 50 days)",
+        },
         "partitions": {
             name: {
                 "rows": len(part),

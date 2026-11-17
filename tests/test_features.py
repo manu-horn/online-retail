@@ -65,6 +65,10 @@ def test_complete_label_boundaries_and_future_customer_eligibility():
             ("middle", "2010-02-01"),
             ("late", "2010-02-01"),
             ("never", "2010-02-01"),
+            ("at_cutoff", "2010-02-01"),
+            ("last_instant", "2010-02-01"),
+            ("at_cutoff", t),
+            ("last_instant", t + HORIZON - pd.Timedelta(seconds=1)),
             ("early", t + pd.Timedelta(days=20, hours=23)),
             ("middle", t + pd.Timedelta(days=21)),
             ("late", t + HORIZON),
@@ -74,7 +78,14 @@ def test_complete_label_boundaries_and_future_customer_eligibility():
     )
     snapshots = build_snapshots(data)
     first = snapshots.loc[snapshots.cutoff.eq(t)].set_index("Customer ID")
-    assert first[TARGET].to_dict() == {"early": 0, "late": 2, "middle": 1, "never": 2}
+    assert first[TARGET].to_dict() == {
+        "early": 1,
+        "late": 0,
+        "middle": 1,
+        "never": 0,
+        "at_cutoff": 1,
+        "last_instant": 1,
+    }
     assert (snapshots.cutoff + HORIZON <= pd.Timestamp("2010-06-01")).all()
     assert snapshots.cutoff.dt.dayofweek.eq(0).all()
     assert not snapshots.duplicated(["Customer ID", "cutoff"]).any()

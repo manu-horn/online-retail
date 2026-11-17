@@ -60,17 +60,16 @@ Each row is one `(Customer ID, cutoff)` pair. Every Monday, include all customer
 with any qualifying purchase strictly before the midnight cutoff. Use all observed
 history plus 30/90-day activity. Include sparse and long-inactive customers.
 
-`NextPurchaseRange` measures the first purchase relative to cutoff:
+`RepurchaseWithin50Days` measures the purchase occurrence relative to cutoff:
 
-| Class | Outcome interval |
+| Class | Outcome |
 |---|---|
-| 0 | `[cutoff, cutoff + 21 days)` — days 0–20 |
-| 1 | `[cutoff + 21 days, cutoff + 50 days)` — days 21–49 |
-| 2 | No purchase in `[cutoff, cutoff + 50 days)` |
+| 0 | No qualifying purchase in `[cutoff, cutoff + 50 days)` |
+| 1 | At least one qualifying purchase in `[cutoff, cutoff + 50 days)` |
 
 Only fully observed labels are retained. Observation ends exclusively at
 2011-12-09 00:00 in the current build, conservatively excluding the last partial
-day. Class 2 is not permanent churn. Source coverage is assumed continuous.
+day. Class 0 is not permanent churn. Source coverage is assumed continuous.
 
 | Dataset | Rows | Distinct customers | Monday cutoffs |
 |---|---:|---:|---|
@@ -87,7 +86,7 @@ Customers may occur across dates and splits. Weekly observations are correlated.
 ## Feature and scoring conventions
 
 The current schema has 27 predictors. Use `manifest["feature_columns"]` to select
-them; never include Customer ID, cutoff or NextPurchaseRange in classifier inputs.
+them; never include Customer ID, cutoff or RepurchaseWithin50Days in classifier inputs.
 Groups include historical RFM, recent activity, basket metrics, purchase-day gaps,
 history indicators, annual calendar features and relative RFM scores.
 Missing gaps represent insufficient history and remain missing; do not replace them

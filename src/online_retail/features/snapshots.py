@@ -7,7 +7,7 @@ import pandas as pd
 from online_retail.analysis.customers import customer_history
 
 KEYS = ["Customer ID", "cutoff"]
-TARGET = "NextPurchaseRange"
+TARGET = "RepurchaseWithin50Days"
 FIT_DATE = pd.Timestamp("2011-06-01")
 VALIDATION_START = pd.Timestamp("2010-12-01")
 VALIDATION_END = pd.Timestamp("2011-04-01")
@@ -78,10 +78,7 @@ def build_snapshots(
         future = data.loc[data.InvoiceDate.ge(cutoff) & data.InvoiceDate.lt(cutoff + HORIZON)]
         next_purchase = future.groupby("Customer ID").InvoiceDate.min()
         next_dates = features["Customer ID"].map(next_purchase)
-        features[TARGET] = 2
-        features.loc[next_dates.notna(), TARGET] = 1
-        features.loc[next_dates.lt(cutoff + pd.Timedelta(days=21)), TARGET] = 0
-        features[TARGET] = features[TARGET].astype("int8")
+        features[TARGET] = next_dates.notna().astype("int8")
         frames.append(features)
     if not frames:
         raise ValueError("Insufficient coverage to build complete weekly snapshots")

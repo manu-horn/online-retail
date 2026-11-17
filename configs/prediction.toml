@@ -1,4 +1,4 @@
-# Monday cutoffs; 50-day three-class outcomes are defined in features/snapshots.py.
+# Monday cutoffs; 50-day binary outcomes are defined in features/snapshots.py.
 start_date = "2010-03-01"
 validation_start = "2010-12-01"
 validation_end = "2011-04-01"

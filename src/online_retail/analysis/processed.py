@@ -7,7 +7,7 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.ticker import LogLocator, StrMethodFormatter
 
-CLASS_NAMES = {0: "0: days 0–20", 1: "1: days 21–49", 2: "2: no purchase within 50 days"}
+CLASS_NAMES = {0: "0: no purchase within 50 days", 1: "1: purchase within 50 days"}
 
 
 def feature_summary(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
@@ -27,7 +27,7 @@ def feature_summary(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 
 def class_shares(data: pd.DataFrame, target: str, group: str) -> pd.DataFrame:
     """Conditional class percentages within each group, preserving absent classes."""
-    counts = pd.crosstab(data[group], data[target]).reindex(columns=[0, 1, 2], fill_value=0)
+    counts = pd.crosstab(data[group], data[target]).reindex(columns=[0, 1], fill_value=0)
     return counts.div(counts.sum(axis=1), axis=0) * 100
 
 
