@@ -78,5 +78,9 @@ about 300 GB still available on `/home` after the image build. Rollback data is
 kept outside the repository by the one-off migration script.
 
 The Dockerfile checks for at least 4 GiB free before dependency installation;
-allow additional headroom for image export. The remote GitHub Actions workflow
-has not been run yet. No image has been published or deployed.
+allow additional headroom for image export.
+
+[GitHub Actions run 45540424765](https://github.com/manu-horn/online-retail/actions/runs/45540424765)
+passed for commit `81a3158`: lockfile, lint, formatting, pytest, image build and
+synthetic container checks all succeeded on a GitHub-hosted runner.
+No image has been published or deployed.

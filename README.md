@@ -53,9 +53,9 @@ See [full results](docs/results.md), [evaluation](docs/evaluation.md) and the
 |---|---|---|
 | Cleansing, customer analysis and past-only features | Fixed-parameter training reproduction | S3, SageMaker Training and Batch Transform |
 | Temporal tuning, policy selection and test evaluation | Broader operational logging coverage | Scheduling, monitoring and release management |
-| Group/weekly diagnostics and SHAP explanations | First remote CI run | Release automation and cloud operations |
+| Group/weekly diagnostics and SHAP explanations | | Release automation and cloud operations |
 | MLflow tracking and training/evaluation scripts | | Optional interactive API |
-| Verified inference container and GitHub Actions workflow | | |
+| Verified inference container and passing GitHub Actions CI | | |
 
 Local batch scoring now packages the frozen pipeline/policy, validates cutoff
 coverage and writes versioned scores with structured logs. The historical replay

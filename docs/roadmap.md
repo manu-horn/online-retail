@@ -39,7 +39,7 @@ versioned frozen bundles and batch scoring with structured logs are implemented.
 See [MLflow integration](mlflow.md) and [local inference](inference.md). Fixed-parameter
 training reproduction remains next. An inference Dockerfile and GitHub Actions CI
 workflow are added. Local image build and synthetic container checks pass;
-the first remote CI run remains pending.
+both GitHub Actions jobs also passed for commit `81a3158`.
 See [Docker and CI](containers-ci.md). Cloud resources are not required yet.
 
 Training and weekly scoring are separate. Preserve the current evaluated model
