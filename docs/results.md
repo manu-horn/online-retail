@@ -126,11 +126,12 @@ rather than refitting or reselecting the policy on rerun. Earlier experiment cel
 may still retrain their models; the ROC-AUC section has a separate rerun switch.
 `run_final` refuses to overwrite an existing final report.
 
-There is no production scoring service, experiment registry, deployment or
-monitoring system yet. Next work is artifact/data versioning and reproducible
-batch inference, followed by experiment tracking and operational monitoring.
-Business costs, repeated-contact rules and performance acceptance criteria need
-real requirements before deployment. See [roadmap](roadmap.md).
+Local MLflow tracking, versioned bundles, reproducible training, batch scoring,
+Docker/CI and basic monitoring are now implemented. SageMaker adapters are tested
+locally; actual AWS execution remains conditional on account access and costs.
+The remaining project milestone is one small cloud replay, not a full production
+platform. Business costs and campaign acceptance criteria would need real
+requirements before operational marketing use. See the [simple roadmap](roadmap.md).
 
 ## Additional F1 policy comparison (exploratory)
 

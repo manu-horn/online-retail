@@ -49,25 +49,26 @@ See [full results](docs/results.md), [evaluation](docs/evaluation.md) and the
 
 ## Current project status
 
-| Implemented locally | Next | Planned later |
-|---|---|---|
-| Cleansing, customer analysis and past-only features | Monitoring review and weekly trends | Optional S3, SageMaker Training and Batch Transform |
-| Temporal tuning, policy selection and test evaluation | Scheduling and operational notifications | Release management and optional cloud orchestration |
-| Group/weekly diagnostics and SHAP explanations | | Release automation and cloud operations |
-| MLflow tracking and training/evaluation scripts | | Optional interactive API |
-| Verified training/inference containers and passing CI for both | | |
-| Fixed-parameter final-fit reproduction with MLflow and holdout parity | | |
-| SageMaker training/Batch Transform adapters with passing CI | Account recovery and cost verification | |
-| Local drift reports and mature-outcome monitoring | Promotion/rollback and image delivery | |
+The intended scope is **data preparation → training → MLflow tracking → saved
+model → batch predictions → basic monitoring**.
 
-Local batch scoring now packages the frozen pipeline/policy, validates cutoff
-coverage and writes versioned scores with structured logs. Optional monitoring compares
-fixed development distributions and evaluates outcomes only after 50 days. The historical replay
-matches saved predictions exactly. See [local inference](docs/inference.md).
+| Part | Status |
+|---|---|
+| Data analysis, past-only features and temporal model evaluation | Implemented |
+| MLflow tracking and fixed-parameter training reproduction | Implemented locally |
+| Versioned bundles, batch scoring and JSON logs | Implemented locally; predictions match the saved replay |
+| Docker images and GitHub Actions code/container checks | Implemented |
+| Basic drift reports and mature-outcome monitoring | Implemented locally |
+| S3 → SageMaker Training → Batch Transform replay | Adapters verified locally; AWS access/cost checks unresolved |
 
-This is a completed modeling study with local experiment tracking. Cloud deployment
-and production operations are not implemented. See the [roadmap](docs/roadmap.md)
-and [AWS workflow plan](docs/aws-batch-workflow.md).
+The preferred cloud budget is **$0** and the configured AWS account is currently
+closed. No cloud resources have been created by this workflow. The main remaining
+milestone is one small AWS replay if access and costs allow it.
+
+Scheduling, dashboards, notifications, registry promotion, automated rollback and
+automatic retraining are optional extensions, not requirements for this project.
+See the [simple roadmap](docs/roadmap.md), [monitoring guide](docs/monitoring.md)
+and [AWS replay plan](docs/aws-batch-workflow.md).
 
 ## Set up the environment
 

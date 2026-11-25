@@ -129,8 +129,8 @@ This integration provides tracking, not a production inference service.
 Integration tests train a small chronological fixture, verify metrics/provenance,
 reload a logged model and compare probabilities, import artifacts without mutation,
 and confirm failed runs close correctly. The original evaluated model remains
-unchanged. AWS jobs, registry approvals and production scheduling are later roadmap
-milestones; see [AWS workflow](aws-batch-workflow.md).
+unchanged. The optional next cloud milestone is one [AWS replay](aws-batch-workflow.md).
+Registry promotion and production scheduling are deferred extensions.
 
 ## Fixed-parameter reproduction
 

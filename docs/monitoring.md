@@ -134,12 +134,16 @@ Monitoring metrics use the `monitoring.` prefix; lineage
 tags link the scoring run, reference and source model. Outcome metrics use the
 existing `reported.` prefix. No model is copied or promoted by these imports.
 
-## What remains
+## Scope
 
-Threshold validation, a cross-week trend/run index, scheduling, overdue-outcome
-checks, notifications and registry/promotion/rollback procedures remain separate
-steps. The first implementation stores reports and logs; it is not an unattended
-alerting service. See the [remaining work and tools](roadmap.md).
+The existing reports, logs and mature-outcome checks are sufficient for the initial
+batch demonstration. Warning limits remain documented review heuristics; they
+are not validated production alarms. Run the commands manually for chosen replay
+cutoffs. No unattended alerting service is claimed.
+
+Weekly trend indexes, scheduling, notifications and registry/promotion/rollback
+automation are optional later extensions, not outstanding requirements for this
+milestone. See the [simple roadmap](roadmap.md).
 
 
 ## Verification
@@ -149,5 +153,5 @@ check with monitored scoring enabled (`artifacts/ci/monitoring-container.json`).
 Scoring probabilities and decisions remain unchanged; warning reports require
 no labels. Tests cover fixed/constant reference bins, missingness, stale references,
 failure logging without published output, mature coverage boundaries, cohort
-identity, historical revisions and MLflow aggregate imports. The updated CI check
-awaits execution on a pushed branch.
+identity, historical revisions and MLflow aggregate imports. The extended container check is included in CI; consult the branch
+Actions run for its current remote status.
