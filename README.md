@@ -55,7 +55,7 @@ See [full results](docs/results.md), [evaluation](docs/evaluation.md) and the
 | Temporal tuning, policy selection and test evaluation | Broader operational logging coverage | Scheduling, monitoring and release management |
 | Group/weekly diagnostics and SHAP explanations | | Release automation and cloud operations |
 | MLflow tracking and training/evaluation scripts | | Optional interactive API |
-| Verified training/inference containers; inference CI passed | First remote training CI run | |
+| Verified training/inference containers and passing CI for both | | |
 | Fixed-parameter final-fit reproduction with MLflow and holdout parity | | |
 
 Local batch scoring now packages the frozen pipeline/policy, validates cutoff

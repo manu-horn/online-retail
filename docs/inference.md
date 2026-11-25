@@ -113,5 +113,6 @@ overwrite protection and JSON failure events. Source code is under
 
 Fixed-parameter fitting is now verified; see [training reproduction](training-reproduction.md).
 Training and inference containers are now verified locally; see [Docker and CI](containers-ci.md).
-Next work: remote training CI verification, broader logging coverage and
+Training and inference CI checks also pass remotely.
+Next work: broader logging coverage and
 the [AWS batch workflow](aws-batch-workflow.md).

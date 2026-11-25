@@ -150,6 +150,10 @@ predictions exactly after fitting **146,415** snapshots. Results are in
 The reference model/policy are unchanged. The parity summary is
 `artifacts/ci/training-retail-parity.json`.
 
-CI now includes both targets; this expanded matrix has been validated locally
-but has not yet run remotely. The linked successful GitHub run above covers the
-earlier inference-only workflow.
+The expanded matrix also passes remotely: [run 45665860790](https://github.com/manu-horn/online-retail/actions/runs/45665860790)
+for commit `161b858` passed code checks, the inference container check and the
+training container check, including host-side MLflow reload. The earlier linked
+run covers the initial inference-only workflow.
+
+Smoke-test assertions include subprocess exit codes, stdout and stderr so a
+container failure is visible in CI logs rather than only an assertion location.

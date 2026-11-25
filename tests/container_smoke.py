@@ -159,13 +159,17 @@ def check_container(image, report_path=None):
         )
         # A retry cannot overwrite an existing output.
         retry = subprocess.run(docker + [image] + arguments, capture_output=True, text=True)
-        assert retry.returncode == 1 and "scoring_failed" in retry.stderr
+        assert retry.returncode == 1 and "scoring_failed" in retry.stderr, (
+            f"Overwrite check exited {retry.returncode}:\n{retry.stdout}\n{retry.stderr}"
+        )
         # Invalid declared coverage also fails without publishing partial output.
         invalid = arguments.copy()
         invalid[invalid.index("--coverage-end") + 1] = "2011-06-05"
         invalid[invalid.index("--output") + 1] = "/output/invalid"
         failure = subprocess.run(docker + [image] + invalid, capture_output=True, text=True)
-        assert failure.returncode == 1 and "scoring_failed" in failure.stderr
+        assert failure.returncode == 1 and "scoring_failed" in failure.stderr, (
+            f"Coverage check exited {failure.returncode}:\n{failure.stdout}\n{failure.stderr}"
+        )
         assert not (outputs / "invalid").exists()
         user = subprocess.check_output(
             ["docker", "image", "inspect", image, "--format", "{{.Config.User}}"], text=True

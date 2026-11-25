@@ -93,7 +93,9 @@ def check_training_container(image, report_path=None):
             rtol=0,
         )
         retry = subprocess.run(docker + [image] + arguments, capture_output=True, text=True)
-        assert retry.returncode != 0 and "FileExistsError" in retry.stderr
+        assert retry.returncode != 0 and "FileExistsError" in retry.stderr, (
+            f"Overwrite check exited {retry.returncode}:\n{retry.stdout}\n{retry.stderr}"
+        )
         user = subprocess.check_output(
             ["docker", "image", "inspect", image, "--format", "{{.Config.User}}"], text=True
         ).strip()

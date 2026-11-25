@@ -41,8 +41,8 @@ See [MLflow integration](mlflow.md), [local inference](inference.md) and
 [training reproduction](training-reproduction.md). Fixed-parameter fitting matches
 the saved policy-holdout predictions exactly, both on the host and in the training
 container. Separate training/inference targets and local synthetic checks pass.
-GitHub Actions now checks both targets; the expanded matrix awaits its first
-remote run. The earlier inference-only workflow passed for commit `81a3158`.
+GitHub Actions checks both targets; all three jobs (code checks, inference and
+training) passed for commit `161b858`.
 See [Docker and CI](containers-ci.md). Cloud resources are not required yet.
 
 Training and weekly scoring are separate. Preserve the current evaluated model

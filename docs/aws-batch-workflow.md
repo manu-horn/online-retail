@@ -95,8 +95,7 @@ training/inference contracts pass checks. No cloud jobs are needed yet.
 
 **Current evidence:** separate CLI training/inference targets build and pass local
 synthetic checks. Full retail training matches saved holdout probabilities exactly
-inside Docker, with MLflow artifacts reloadable on the host. The CI matrix is added;
-its training job awaits remote execution. SageMaker job/HTTP adapters, image publishing
+inside Docker, with MLflow artifacts reloadable on the host. The full CI matrix passed remotely for commit `161b858`. SageMaker job/HTTP adapters, image publishing
 and ECR remain pending. See [Docker and CI](containers-ci.md).
 
 ### 4. First AWS training and batch prediction run
