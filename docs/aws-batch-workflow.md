@@ -34,12 +34,16 @@ a later milestone moves it to SageMaker Processing.
 ## Current status
 
 Local MLflow tracking, artifact imports and development training/evaluation scripts
-are implemented. Remaining work starts with inference/serving, structured logging
-and a complete model/policy bundle. Docker, CI/CD and AWS execution are planned.
+are implemented, alongside local batch inference, frozen model/policy bundles and
+structured scoring logs. The inference Dockerfile and CI workflow are added;
+local image build and synthetic container verification pass; see [Docker and CI](containers-ci.md). Fixed-parameter
+training reproduction now passes local holdout parity checks; see
+[training reproduction](training-reproduction.md). Training container packaging and local parity checks now pass too.
+SageMaker contract adaptation and AWS execution remain planned. See [local inference](inference.md).
 
 ## Milestones
 
-### 1. Local training and scoring interface — next
+### 1. Local training and scoring interface — complete locally
 
 Reuse package functions behind commands with explicit input/output paths and
 configuration. Notebooks remain exploration and reporting tools.
@@ -51,6 +55,10 @@ configuration. Notebooks remain exploration and reporting tools.
   reproduce the existing final fit; do not rerun Optuna or select from test.
 - Package the fitted preprocessing/model, ordered feature schema, policy and manifest.
 - Score a feature table and apply the specified policy separately.
+
+**Current evidence:** the frozen-model scoring replay is implemented and matches
+saved probabilities exactly. Fixed-parameter final-fit reproduction also matches
+all 28,001 policy-holdout predictions exactly, with the original model and policy preserved.
 
 **Done when:** one local historical replay runs without a notebook; predictions
 match the existing model within numerical tolerance; input schema and customer/cutoff
@@ -71,7 +79,7 @@ MLflow can record the bundle; cloud-hosted tracking is not required for the firs
 policy and predictions. The selected bundle is identified explicitly, not by an
 unqualified “latest” file.
 
-### 3. Container packaging and automated checks
+### 3. Container packaging and automated checks — local targets complete
 
 Create training and inference entrypoints using the existing Python 3.12/uv
 environment. Keep prediction dependencies separate from notebook/SHAP tooling
@@ -84,6 +92,11 @@ and record the image digest with each run.
 
 **Done when:** a local container reproduces package-level predictions and the
 training/inference contracts pass checks. No cloud jobs are needed yet.
+
+**Current evidence:** separate CLI training/inference targets build and pass local
+synthetic checks. Full retail training matches saved holdout probabilities exactly
+inside Docker, with MLflow artifacts reloadable on the host. The full CI matrix passed remotely for commit `161b858`. SageMaker job/HTTP adapters, image publishing
+and ECR remain pending. See [Docker and CI](containers-ci.md).
 
 ### 4. First AWS training and batch prediction run
 

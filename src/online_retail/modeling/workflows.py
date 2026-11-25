@@ -97,3 +97,26 @@ def run_evaluation(data_dir: Path, model_dir: Path, output_dir: Path, tracking: 
         log_result_tree(output_dir, data_dir)
         (output_dir / "mlflow_run.json").write_text(json.dumps({"run_id": run_id}, indent=2))
     return tables
+
+
+def run_reproduction(
+    data_dir: Path, reference_dir: Path, output_dir: Path, tracking: TrackingConfig
+):
+    """Track fixed fitting and policy-holdout parity, without opening test rows."""
+    from online_retail.modeling.reproduction import reproduce_fit
+
+    if output_dir.exists():
+        raise FileExistsError("Use a new reproduction output directory")
+    with tracked_run(
+        tracking, "xgboost-fixed-fit-reproduction", data_dir, mode="fixed_parameter_reproduction"
+    ) as run_id:
+        result = reproduce_fit(data_dir, reference_dir, output_dir)
+        import mlflow
+
+        mlflow.set_tag(
+            "reproduction.reference_model_sha256", result["source_checksums"]["reference_model"]
+        )
+        mlflow.set_tag("reproduction.test_data_loaded", "false")
+        log_result_tree(output_dir, data_dir)
+        (output_dir / "mlflow_run.json").write_text(json.dumps({"run_id": run_id}, indent=2) + "\n")
+    return result

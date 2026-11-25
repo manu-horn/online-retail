@@ -2,7 +2,7 @@
 
 ## Completed locally
 
-- uv environment, installable package and private repository foundation.
+- uv environment, installable package and repository foundation.
 - Two-sheet ingestion, source checksum and purchase cleansing with removal reports.
 - Sales/customer exploration, sparse-history handling and weekly past-only features.
 - Binary 50-day labels, complete follow-up and chronological partitions.
@@ -13,6 +13,8 @@
 - ROC-AUC model selection, final fitting, later policy holdout and frozen threshold.
 - Final test evaluation; local model, predictions, policy and reports saved.
 - Local MLflow tracking, saved-artifact imports and executable development training/evaluation scripts.
+- Frozen model/policy bundles, local cutoff scoring, JSON application logs and historical inference parity.
+- Fixed-parameter final-fit reproduction, holdout prediction parity and MLflow lineage.
 
 See [results](results.md) for the selected XGBoost model and threshold 0.62.
 Test has already been evaluated; it is not a fresh selection dataset.
@@ -33,9 +35,15 @@ Follow the [AWS batch workflow roadmap](aws-batch-workflow.md), one milestone at
 6. **Operations:** monitor jobs/data and delayed outcomes; define promotion,
    rollback, retraining and new evaluation periods.
 
-**Current implementation:** local MLflow tracking and training/evaluation scripts
-are implemented; batch scoring and a complete versioned model/policy bundle remain
-next. See [MLflow integration](mlflow.md). Cloud resources are not required yet.
+**Current implementation:** local tracking, development training/evaluation scripts,
+versioned frozen bundles and batch scoring with structured logs are implemented.
+See [MLflow integration](mlflow.md), [local inference](inference.md) and
+[training reproduction](training-reproduction.md). Fixed-parameter fitting matches
+the saved policy-holdout predictions exactly, both on the host and in the training
+container. Separate training/inference targets and local synthetic checks pass.
+GitHub Actions checks both targets; all three jobs (code checks, inference and
+training) passed for commit `161b858`.
+See [Docker and CI](containers-ci.md). Cloud resources are not required yet.
 
 Training and weekly scoring are separate. Preserve the current evaluated model
 and policy while reproducing them. The first cloud run uses selected parameters,
