@@ -51,10 +51,11 @@ See [full results](docs/results.md), [evaluation](docs/evaluation.md) and the
 
 | Implemented locally | Next | Planned later |
 |---|---|---|
-| Cleansing, customer analysis and past-only features | Fixed-parameter training reproduction | Docker and GitHub Actions CI/CD |
-| Temporal tuning, policy selection and test evaluation | Broader operational logging coverage | S3, SageMaker Training and Batch Transform |
-| Group/weekly diagnostics and SHAP explanations | Container and CI verification | Scheduling, monitoring and release management |
+| Cleansing, customer analysis and past-only features | Fixed-parameter training reproduction | S3, SageMaker Training and Batch Transform |
+| Temporal tuning, policy selection and test evaluation | Broader operational logging coverage | Scheduling, monitoring and release management |
+| Group/weekly diagnostics and SHAP explanations | First remote CI run | Release automation and cloud operations |
 | MLflow tracking and training/evaluation scripts | | Optional interactive API |
+| Verified inference container and GitHub Actions workflow | | |
 
 Local batch scoring now packages the frozen pipeline/policy, validates cutoff
 coverage and writes versioned scores with structured logs. The historical replay
@@ -75,6 +76,10 @@ uv run --locked ruff check src scripts tests
 uv run --locked ruff format --check src scripts tests
 uv run --locked jupyter lab
 ```
+
+The default development group includes training tools. `uv sync --locked --no-dev`
+installs inference dependencies only; add `--group training` for training without
+development tools.
 
 Select the project's `.venv` notebook kernel. `uv.lock` fixes dependency versions;
 tools include scikit-learn, Optuna, XGBoost, LightGBM, SHAP and MLflow. Lint and
@@ -153,6 +158,7 @@ Git-ignored.
 - [Results and saved artifacts](docs/results.md)
 - [Evaluation notebook guide](docs/evaluation.md)
 - [Local inference guide](docs/inference.md)
+- [Docker and CI guide](docs/containers-ci.md)
 - [MLflow guide](docs/mlflow.md)
 - [MLOps roadmap](docs/roadmap.md)
 - [AWS batch workflow](docs/aws-batch-workflow.md)

@@ -2,7 +2,7 @@
 
 ## Completed locally
 
-- uv environment, installable package and private repository foundation.
+- uv environment, installable package and repository foundation.
 - Two-sheet ingestion, source checksum and purchase cleansing with removal reports.
 - Sales/customer exploration, sparse-history handling and weekly past-only features.
 - Binary 50-day labels, complete follow-up and chronological partitions.
@@ -37,7 +37,10 @@ Follow the [AWS batch workflow roadmap](aws-batch-workflow.md), one milestone at
 **Current implementation:** local tracking, development training/evaluation scripts,
 versioned frozen bundles and batch scoring with structured logs are implemented.
 See [MLflow integration](mlflow.md) and [local inference](inference.md). Fixed-parameter
-training reproduction and Docker/CI remain next; cloud resources are not required yet.
+training reproduction remains next. An inference Dockerfile and GitHub Actions CI
+workflow are added. Local image build and synthetic container checks pass;
+the first remote CI run remains pending.
+See [Docker and CI](containers-ci.md). Cloud resources are not required yet.
 
 Training and weekly scoring are separate. Preserve the current evaluated model
 and policy while reproducing them. The first cloud run uses selected parameters,

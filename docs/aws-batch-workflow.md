@@ -35,8 +35,9 @@ a later milestone moves it to SageMaker Processing.
 
 Local MLflow tracking, artifact imports and development training/evaluation scripts
 are implemented, alongside local batch inference, frozen model/policy bundles and
-structured scoring logs. Fixed-parameter training reproduction, Docker/CI and AWS
-execution remain planned. See [local inference](inference.md).
+structured scoring logs. The inference Dockerfile and CI workflow are added;
+local image build and synthetic container verification pass; see [Docker and CI](containers-ci.md). Fixed-parameter
+training reproduction and AWS execution remain planned. See [local inference](inference.md).
 
 ## Milestones
 

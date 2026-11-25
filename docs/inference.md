@@ -112,4 +112,4 @@ overwrite protection and JSON failure events. Source code is under
 `src/online_retail/serving/`; logging is in `src/online_retail/logging.py`.
 
 Next work: fixed-parameter training reproduction, broader logging coverage,
-containerization/CI, then the [AWS batch workflow](aws-batch-workflow.md).
+[container/CI verification](containers-ci.md), then the [AWS batch workflow](aws-batch-workflow.md).

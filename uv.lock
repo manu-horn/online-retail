@@ -1507,23 +1507,23 @@ name = "online-retail"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "lightgbm" },
-    { name = "mlflow" },
     { name = "openpyxl" },
-    { name = "optuna" },
     { name = "pandas" },
     { name = "pyarrow" },
     { name = "scikit-learn" },
     { name = "seaborn" },
-    { name = "shap" },
     { name = "threadpoolctl" },
     { name = "xgboost" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "lightgbm" },
+    { name = "mlflow" },
+    { name = "optuna" },
     { name = "pytest" },
     { name = "ruff" },
+    { name = "shap" },
 ]
 notebooks = [
     { name = "ipykernel" },
@@ -1531,32 +1531,44 @@ notebooks = [
     { name = "matplotlib" },
     { name = "seaborn" },
 ]
+training = [
+    { name = "lightgbm" },
+    { name = "mlflow" },
+    { name = "optuna" },
+    { name = "shap" },
+]
 
 [package.metadata]
 requires-dist = [
-    { name = "lightgbm", specifier = ">=4.7.0" },
-    { name = "mlflow", specifier = ">=3,<4" },
     { name = "openpyxl", specifier = ">=3.1,<4" },
-    { name = "optuna", specifier = ">=5.1.0" },
     { name = "pandas", specifier = ">=2.2,<3" },
     { name = "pyarrow", specifier = ">=18,<24" },
     { name = "scikit-learn", specifier = ">=1.6,<2" },
     { name = "seaborn", specifier = ">=0.13.2" },
-    { name = "shap", specifier = ">=0.54.1" },
     { name = "threadpoolctl", specifier = ">=3.1,<4" },
     { name = "xgboost", specifier = ">=3.4.1" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "lightgbm", specifier = ">=4.7.0" },
+    { name = "mlflow", specifier = ">=3,<4" },
+    { name = "optuna", specifier = ">=5.1.0" },
     { name = "pytest", specifier = ">=8,<10" },
     { name = "ruff", specifier = ">=0.11,<1" },
+    { name = "shap", specifier = ">=0.54.1" },
 ]
 notebooks = [
     { name = "ipykernel", specifier = ">=6,<8" },
     { name = "jupyterlab", specifier = ">=4,<5" },
     { name = "matplotlib", specifier = ">=3.9,<4" },
     { name = "seaborn", specifier = ">=0.13,<1" },
+]
+training = [
+    { name = "lightgbm", specifier = ">=4.7.0" },
+    { name = "mlflow", specifier = ">=3,<4" },
+    { name = "optuna", specifier = ">=5.1.0" },
+    { name = "shap", specifier = ">=0.54.1" },
 ]
 
 [[package]]

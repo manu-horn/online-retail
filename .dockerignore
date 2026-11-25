@@ -1,0 +1,13 @@
+# Allowlist: keep data, credentials, artifacts and local environments out of context.
+**
+!Dockerfile
+!pyproject.toml
+!uv.lock
+!README.md
+!src/
+!src/**
+!scripts/
+!scripts/score.py
+!scripts/package_model.py
+**/__pycache__
+**/*.py[cod]
