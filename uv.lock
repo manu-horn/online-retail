@@ -1518,6 +1518,8 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "flask" },
+    { name = "gunicorn" },
     { name = "lightgbm" },
     { name = "mlflow" },
     { name = "optuna" },
@@ -1530,6 +1532,10 @@ notebooks = [
     { name = "jupyterlab" },
     { name = "matplotlib" },
     { name = "seaborn" },
+]
+serving = [
+    { name = "flask" },
+    { name = "gunicorn" },
 ]
 training = [
     { name = "lightgbm" },
@@ -1551,6 +1557,8 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "flask", specifier = ">=3.1,<4" },
+    { name = "gunicorn", specifier = ">=26,<27" },
     { name = "lightgbm", specifier = ">=4.7.0" },
     { name = "mlflow", specifier = ">=3,<4" },
     { name = "optuna", specifier = ">=5.1.0" },
@@ -1563,6 +1571,10 @@ notebooks = [
     { name = "jupyterlab", specifier = ">=4,<5" },
     { name = "matplotlib", specifier = ">=3.9,<4" },
     { name = "seaborn", specifier = ">=0.13,<1" },
+]
+serving = [
+    { name = "flask", specifier = ">=3.1,<4" },
+    { name = "gunicorn", specifier = ">=26,<27" },
 ]
 training = [
     { name = "lightgbm", specifier = ">=4.7.0" },

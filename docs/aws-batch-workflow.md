@@ -39,7 +39,8 @@ structured scoring logs. The inference Dockerfile and CI workflow are added;
 local image build and synthetic container verification pass; see [Docker and CI](containers-ci.md). Fixed-parameter
 training reproduction now passes local holdout parity checks; see
 [training reproduction](training-reproduction.md). Training container packaging and local parity checks now pass too.
-SageMaker contract adaptation and AWS execution remain planned. See [local inference](inference.md).
+SageMaker training/Batch Transform adapters now pass local contract checks and a
+retail replay; see [container contracts](sagemaker-contracts.md). AWS execution remains planned. See [local inference](inference.md).
 
 ## Milestones
 
@@ -95,8 +96,8 @@ training/inference contracts pass checks. No cloud jobs are needed yet.
 
 **Current evidence:** separate CLI training/inference targets build and pass local
 synthetic checks. Full retail training matches saved holdout probabilities exactly
-inside Docker, with MLflow artifacts reloadable on the host. The full CI matrix passed remotely for commit `161b858`. SageMaker job/HTTP adapters, image publishing
-and ECR remain pending. See [Docker and CI](containers-ci.md).
+inside Docker, with MLflow artifacts reloadable on the host. The full CI matrix passed remotely for commit `161b858`. SageMaker job/HTTP adapters now pass local emulation and retail replay checks.
+Their new CI job awaits remote execution. Image publishing and ECR remain pending. See [Docker and CI](containers-ci.md).
 
 ### 4. First AWS training and batch prediction run
 

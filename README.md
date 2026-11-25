@@ -51,12 +51,13 @@ See [full results](docs/results.md), [evaluation](docs/evaluation.md) and the
 
 | Implemented locally | Next | Planned later |
 |---|---|---|
-| Cleansing, customer analysis and past-only features | SageMaker container contracts | S3, SageMaker Training and Batch Transform |
+| Cleansing, customer analysis and past-only features | First AWS replay setup | S3, SageMaker Training and Batch Transform |
 | Temporal tuning, policy selection and test evaluation | Broader operational logging coverage | Scheduling, monitoring and release management |
 | Group/weekly diagnostics and SHAP explanations | | Release automation and cloud operations |
 | MLflow tracking and training/evaluation scripts | | Optional interactive API |
 | Verified training/inference containers and passing CI for both | | |
 | Fixed-parameter final-fit reproduction with MLflow and holdout parity | | |
+| Locally verified SageMaker training/Batch Transform adapters | Remote contract CI verification | |
 
 Local batch scoring now packages the frozen pipeline/policy, validates cutoff
 coverage and writes versioned scores with structured logs. The historical replay
@@ -146,6 +147,7 @@ Git-ignored.
 | `src/online_retail/analysis/` | Exploratory plots and diagnostics |
 | `src/online_retail/modeling/` | Models, temporal evaluation, explanations, workflows and tracking |
 | `src/online_retail/serving/` | Frozen bundles and batch inference |
+| `src/online_retail/sagemaker/` | Training paths, prepared JSON Lines and Batch Transform HTTP adapter |
 | `scripts/` | Training, evaluation, tracking, packaging and scoring entrypoints |
 | `configs/` | Prediction dates and tracking settings |
 | `tests/` | Data, temporal, metric, policy, explanation and tracking checks |
@@ -160,6 +162,7 @@ Git-ignored.
 - [Evaluation notebook guide](docs/evaluation.md)
 - [Local inference guide](docs/inference.md)
 - [Docker and CI guide](docs/containers-ci.md)
+- [SageMaker container contracts](docs/sagemaker-contracts.md)
 - [Fixed-parameter training reproduction](docs/training-reproduction.md)
 - [MLflow guide](docs/mlflow.md)
 - [MLOps roadmap](docs/roadmap.md)

@@ -15,6 +15,7 @@
 - Local MLflow tracking, saved-artifact imports and executable development training/evaluation scripts.
 - Frozen model/policy bundles, local cutoff scoring, JSON application logs and historical inference parity.
 - Fixed-parameter final-fit reproduction, holdout prediction parity and MLflow lineage.
+- Locally verified SageMaker training/HTTP adapters, JSON Lines export and contract tests.
 
 See [results](results.md) for the selected XGBoost model and threshold 0.62.
 Test has already been evaluated; it is not a fresh selection dataset.
@@ -43,7 +44,9 @@ the saved policy-holdout predictions exactly, both on the host and in the traini
 container. Separate training/inference targets and local synthetic checks pass.
 GitHub Actions checks both targets; all three jobs (code checks, inference and
 training) passed for commit `161b858`.
-See [Docker and CI](containers-ci.md). Cloud resources are not required yet.
+See [Docker and CI](containers-ci.md). [SageMaker contracts](sagemaker-contracts.md)
+now pass local synthetic and retail replay checks; the new CI job awaits its first
+remote run. AWS roles, region, storage and spending limits remain to be configured.
 
 Training and weekly scoring are separate. Preserve the current evaluated model
 and policy while reproducing them. The first cloud run uses selected parameters,

@@ -146,3 +146,10 @@ For container training, `reproduce_fit.py --tracking-dir <writable-path>` separa
 tracking storage from read-only application code. Mount that directory at the same
 absolute path inside and outside Docker so logged model URIs remain loadable from
 the host. See the [training container commands](containers-ci.md#build-and-reproduce-training).
+
+
+The SageMaker contract adapter writes portable reproduction reports and model
+bundles to the managed output paths. It does not create a job-local SQLite store.
+After downloading job outputs, use the existing saved-results import workflow
+with the processed datasets to record them in local MLflow. A remote tracking
+server is a separate decision. See [SageMaker contracts](sagemaker-contracts.md).

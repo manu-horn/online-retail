@@ -116,3 +116,9 @@ Training and inference containers are now verified locally; see [Docker and CI](
 Training and inference CI checks also pass remotely.
 Next work: broader logging coverage and
 the [AWS batch workflow](aws-batch-workflow.md).
+
+
+SageMaker Batch Transform uses the same frozen pipeline through a separate HTTP
+adapter receiving prepared snapshot JSON Lines. The training adapter exports a
+compatible bundle under `/opt/ml/model`. Both are verified locally; see
+[SageMaker contracts](sagemaker-contracts.md). No AWS job has been launched.
