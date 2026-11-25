@@ -131,3 +131,12 @@ reload a logged model and compare probabilities, import artifacts without mutati
 and confirm failed runs close correctly. The original evaluated model remains
 unchanged. AWS jobs, registry approvals and production scheduling are later roadmap
 milestones; see [AWS workflow](aws-batch-workflow.md).
+
+## Fixed-parameter reproduction
+
+`scripts/reproduce_fit.py` creates an `xgboost-fixed-fit-reproduction` run with
+workflow mode `fixed_parameter_reproduction`. It trains anew from the reference
+pipeline settings, retains the frozen threshold, and compares probabilities on
+the policy holdout. It does not run Optuna or evaluate test rows. The new model
+and parity/provenance report are logged separately from the evaluated reference.
+See [commands and evidence](training-reproduction.md).

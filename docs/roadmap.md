@@ -14,6 +14,7 @@
 - Final test evaluation; local model, predictions, policy and reports saved.
 - Local MLflow tracking, saved-artifact imports and executable development training/evaluation scripts.
 - Frozen model/policy bundles, local cutoff scoring, JSON application logs and historical inference parity.
+- Fixed-parameter final-fit reproduction, holdout prediction parity and MLflow lineage.
 
 See [results](results.md) for the selected XGBoost model and threshold 0.62.
 Test has already been evaluated; it is not a fresh selection dataset.
@@ -36,9 +37,10 @@ Follow the [AWS batch workflow roadmap](aws-batch-workflow.md), one milestone at
 
 **Current implementation:** local tracking, development training/evaluation scripts,
 versioned frozen bundles and batch scoring with structured logs are implemented.
-See [MLflow integration](mlflow.md) and [local inference](inference.md). Fixed-parameter
-training reproduction remains next. An inference Dockerfile and GitHub Actions CI
-workflow are added. Local image build and synthetic container checks pass;
+See [MLflow integration](mlflow.md), [local inference](inference.md) and
+[training reproduction](training-reproduction.md). Fixed-parameter fitting matches
+the saved policy-holdout predictions exactly. A training container remains next.
+An inference Dockerfile and GitHub Actions CI workflow are added. Local image build and synthetic container checks pass;
 both GitHub Actions jobs also passed for commit `81a3158`.
 See [Docker and CI](containers-ci.md). Cloud resources are not required yet.
 

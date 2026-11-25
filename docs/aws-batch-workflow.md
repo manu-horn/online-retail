@@ -37,11 +37,13 @@ Local MLflow tracking, artifact imports and development training/evaluation scri
 are implemented, alongside local batch inference, frozen model/policy bundles and
 structured scoring logs. The inference Dockerfile and CI workflow are added;
 local image build and synthetic container verification pass; see [Docker and CI](containers-ci.md). Fixed-parameter
-training reproduction and AWS execution remain planned. See [local inference](inference.md).
+training reproduction now passes local holdout parity checks; see
+[training reproduction](training-reproduction.md). Training container packaging
+and AWS execution remain planned. See [local inference](inference.md).
 
 ## Milestones
 
-### 1. Local training and scoring interface — partly complete
+### 1. Local training and scoring interface — complete locally
 
 Reuse package functions behind commands with explicit input/output paths and
 configuration. Notebooks remain exploration and reporting tools.
@@ -55,7 +57,8 @@ configuration. Notebooks remain exploration and reporting tools.
 - Score a feature table and apply the specified policy separately.
 
 **Current evidence:** the frozen-model scoring replay is implemented and matches
-saved probabilities exactly; fixed-parameter final-fit reproduction is still pending.
+saved probabilities exactly. Fixed-parameter final-fit reproduction also matches
+all 28,001 policy-holdout predictions exactly, with the original model and policy preserved.
 
 **Done when:** one local historical replay runs without a notebook; predictions
 match the existing model within numerical tolerance; input schema and customer/cutoff

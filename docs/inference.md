@@ -111,5 +111,6 @@ scores, integrity/schema checks, invalid cutoffs, coverage, historical policy ma
 overwrite protection and JSON failure events. Source code is under
 `src/online_retail/serving/`; logging is in `src/online_retail/logging.py`.
 
-Next work: fixed-parameter training reproduction, broader logging coverage,
+Fixed-parameter fitting is now verified; see [training reproduction](training-reproduction.md).
+Next work: a training container, broader logging coverage,
 [container/CI verification](containers-ci.md), then the [AWS batch workflow](aws-batch-workflow.md).

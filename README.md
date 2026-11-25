@@ -51,11 +51,12 @@ See [full results](docs/results.md), [evaluation](docs/evaluation.md) and the
 
 | Implemented locally | Next | Planned later |
 |---|---|---|
-| Cleansing, customer analysis and past-only features | Fixed-parameter training reproduction | S3, SageMaker Training and Batch Transform |
+| Cleansing, customer analysis and past-only features | Training container | S3, SageMaker Training and Batch Transform |
 | Temporal tuning, policy selection and test evaluation | Broader operational logging coverage | Scheduling, monitoring and release management |
 | Group/weekly diagnostics and SHAP explanations | | Release automation and cloud operations |
 | MLflow tracking and training/evaluation scripts | | Optional interactive API |
 | Verified inference container and passing GitHub Actions CI | | |
+| Fixed-parameter final-fit reproduction with MLflow and holdout parity | | |
 
 Local batch scoring now packages the frozen pipeline/policy, validates cutoff
 coverage and writes versioned scores with structured logs. The historical replay
@@ -159,6 +160,7 @@ Git-ignored.
 - [Evaluation notebook guide](docs/evaluation.md)
 - [Local inference guide](docs/inference.md)
 - [Docker and CI guide](docs/containers-ci.md)
+- [Fixed-parameter training reproduction](docs/training-reproduction.md)
 - [MLflow guide](docs/mlflow.md)
 - [MLOps roadmap](docs/roadmap.md)
 - [AWS batch workflow](docs/aws-batch-workflow.md)
