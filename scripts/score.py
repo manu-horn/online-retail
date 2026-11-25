@@ -17,11 +17,22 @@ def main():
     )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--log-file", type=Path)
+    parser.add_argument(
+        "--monitoring-reference",
+        type=Path,
+        help="Versioned reference.json for aggregate monitoring",
+    )
     args = parser.parse_args()
     logger = configure_logging(args.log_file)
     try:
         run_scoring(
-            args.purchases, args.bundle, args.cutoff, args.coverage_end, args.output, logger
+            args.purchases,
+            args.bundle,
+            args.cutoff,
+            args.coverage_end,
+            args.output,
+            logger,
+            monitoring_reference=args.monitoring_reference,
         )
     except Exception:
         return 1  # Structured failure and traceback have already been logged.

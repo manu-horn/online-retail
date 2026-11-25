@@ -90,3 +90,26 @@ def test_failed_training_is_marked_failed(tracked_data):
     runs = client.search_runs([experiment.experiment_id])
     assert len(runs) == 1 and runs[0].info.status == "FAILED"
     assert mlflow.active_run() is None
+
+
+def test_aggregate_monitoring_reports_are_imported_without_a_model(tracked_data):
+    root, data, config = tracked_data
+    output = root / "monitoring"
+    output.mkdir()
+    report = {
+        "status": "warning",
+        "run_id": "scoring-001",
+        "model_version": "source-model",
+        "reference_version": "reference-001",
+        "rows": 100,
+        "probability_distribution_tv": 0.25,
+        "features": {"last_gap_days": {"current_missing_rate": 0.2, "distribution_tv": None}},
+    }
+    (output / "monitoring.json").write_text(json.dumps(report))
+    run_id = import_results(output, data, config, name="monitoring-import")
+    run = MlflowClient(tracking_uri=config.uri).get_run(run_id)
+    assert run.info.status == "FINISHED"
+    assert run.data.metrics["monitoring.probability_distribution_tv"] == 0.25
+    assert run.data.tags["monitoring.scoring_run_id"] == "scoring-001"
+    assert "model.uri" not in run.data.tags
+    assert (output / "monitoring.json").read_text() == json.dumps(report)

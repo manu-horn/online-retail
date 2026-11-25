@@ -1,0 +1,7 @@
+# Initial review heuristics, not validated performance alarms.
+# Rates use fractions: 0.05 means five percentage points.
+distribution_tv = 0.20
+missing_increase = 0.05
+contact_rate_change = 0.05
+minimum_rows = 100
+minimum_population_ratio = 0.50

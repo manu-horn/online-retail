@@ -3,7 +3,9 @@
 The Dockerfile has separate `training` and `inference` targets. Data and reference
 artifacts are mounted at runtime, keeping the frozen model and threshold 0.62
 separate from both images. A default build still produces inference. These are
-command-line containers; SageMaker job and HTTP serving contracts remain future work.
+command-line targets. Additional `sagemaker-training` and `sagemaker-inference`
+targets adapt the same logic to managed job paths and HTTP serving; see
+[SageMaker contracts](sagemaker-contracts.md).
 
 ## Build and score
 
@@ -81,7 +83,10 @@ See [fitting boundaries and parity rules](training-reproduction.md).
 `.github/workflows/ci.yml` runs on pull requests, pushes to `main` and `feature/**`,
 and manual dispatch. It checks the lockfile, Ruff lint/format and pytest before
 building both targets with commit-SHA/target tags. Actions are pinned by commit.
-The two container checks run as independent matrix jobs.
+The two CLI container checks run as independent matrix jobs. A separate
+`sagemaker-contracts` job builds both adapters and checks the train/archive/serve
+sequence using synthetic data. The adapter job passed remotely for commit `96cdfc2`; see
+[run 45679024871](https://github.com/manu-horn/online-retail/actions/runs/45679024871).
 
 The inference check runs a synthetic end-to-end fixture:
 
@@ -111,7 +116,7 @@ There is no image publishing, cloud deployment or CD pipeline yet.
 
 ## Verification status
 
-All 45 tests pass; Ruff and actionlint pass. Both image targets build locally. A separate inference-only,
+All 54 tests pass locally; Ruff and actionlint pass. Both image targets build locally. A separate inference-only,
 non-editable environment successfully packaged and scored the synthetic fixture,
 matching the host's saved probabilities, decisions and schema.
 
@@ -157,3 +162,10 @@ run covers the initial inference-only workflow.
 
 Smoke-test assertions include subprocess exit codes, stdout and stderr so a
 container failure is visible in CI logs rather than only an assertion location.
+
+
+The inference smoke check now also creates a synthetic monitoring reference and
+runs `score.py --monitoring-reference`, verifying unchanged probabilities and
+JSON/Markdown/PNG reports without adding MLflow to the image. Local verification
+is in `artifacts/ci/monitoring-container.json`; the extension has not run remotely yet.
+See [local monitoring](monitoring.md).

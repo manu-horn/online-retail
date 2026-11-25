@@ -31,6 +31,10 @@ FROM builder AS training-builder
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev --group training --no-editable
 
+FROM builder AS serving-builder
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --no-dev --group serving --no-editable
+
 FROM base AS runtime
 RUN groupadd --gid 10001 app && useradd --uid 10001 --gid app --no-create-home app
 ENV PATH="/app/.venv/bin:$PATH"
@@ -51,6 +55,27 @@ COPY src/ ./src/
 COPY pyproject.toml uv.lock ./
 ENTRYPOINT ["python", "scripts/reproduce_fit.py"]
 CMD ["--help"]
+
+# SageMaker adapters use root as required by the managed container contract.
+FROM runtime AS sagemaker-training
+USER 0:0
+ARG VCS_REF=unknown
+LABEL org.opencontainers.image.title="Online Retail SageMaker fixed-fit training" \
+      org.opencontainers.image.revision=$VCS_REF
+ENV ONLINE_RETAIL_CODE_REVISION=$VCS_REF
+COPY --from=builder /app/.venv /app/.venv
+ENTRYPOINT ["python", "-m", "online_retail.sagemaker"]
+CMD ["train"]
+
+FROM runtime AS sagemaker-inference
+USER 0:0
+ARG VCS_REF=unknown
+LABEL org.opencontainers.image.title="Online Retail SageMaker batch inference" \
+      org.opencontainers.image.revision=$VCS_REF
+COPY --from=serving-builder /app/.venv /app/.venv
+EXPOSE 8080
+ENTRYPOINT ["python", "-m", "online_retail.sagemaker"]
+CMD ["serve"]
 
 # Keep inference last: a build without --target still produces the small scoring image.
 FROM runtime AS inference

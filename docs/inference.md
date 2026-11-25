@@ -114,5 +114,16 @@ overwrite protection and JSON failure events. Source code is under
 Fixed-parameter fitting is now verified; see [training reproduction](training-reproduction.md).
 Training and inference containers are now verified locally; see [Docker and CI](containers-ci.md).
 Training and inference CI checks also pass remotely.
-Next work: broader logging coverage and
-the [AWS batch workflow](aws-batch-workflow.md).
+The remaining cloud milestone is the optional [small AWS replay](aws-batch-workflow.md).
+Broader operational automation is deferred; see the [simple roadmap](roadmap.md).
+
+
+SageMaker Batch Transform uses the same frozen pipeline through a separate HTTP
+adapter receiving prepared snapshot JSON Lines. The training adapter exports a
+compatible bundle under `/opt/ml/model`. Both are verified locally; see
+[SageMaker contracts](sagemaker-contracts.md). No AWS job has been launched.
+
+
+For one-command scoring plus aggregate checks, add `--monitoring-reference` to the
+existing scoring command. It writes distribution/missingness reports and captures
+the scoring-time history group for later outcome evaluation. See [monitoring](monitoring.md).

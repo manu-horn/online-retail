@@ -16,6 +16,7 @@ from sklearn.pipeline import Pipeline
 from xgboost import XGBClassifier
 
 from online_retail.features.snapshots import customer_features
+from online_retail.monitoring.core import build_reference
 from online_retail.serving.bundle import checksum, create_bundle
 from online_retail.serving.workflow import run_scoring
 
@@ -192,6 +193,31 @@ def check_container(image, report_path=None):
             text=True,
         )
         assert probe.returncode == 0, probe.stderr
+        # The same scoring entrypoint optionally emits aggregate monitoring reports.
+        refit = customer_features(pd.read_parquet(inputs / "purchases.parquet"), "2011-04-11")
+        refit.to_parquet(inputs / "refit.parquet", index=False)
+        build_reference(
+            inputs / "refit.parquet", inputs / "bundle", inputs / "monitoring-reference"
+        )
+        monitored_arguments = arguments.copy()
+        monitored_arguments[monitored_arguments.index("--output") + 1] = "/output/monitored"
+        monitored = subprocess.run(
+            docker
+            + [image]
+            + monitored_arguments
+            + ["--monitoring-reference", "/input/monitoring-reference/reference.json"],
+            capture_output=True,
+            text=True,
+        )
+        if monitored.returncode:
+            raise RuntimeError(f"Monitored scoring failed: {monitored.stdout}\n{monitored.stderr}")
+        monitor_report = json.loads((outputs / "monitored/monitoring.json").read_text())
+        assert monitor_report["rows"] == len(actual) and not monitor_report["labels_used"]
+        monitored_scores = pd.read_parquet(outputs / "monitored/scores.parquet")
+        np.testing.assert_array_equal(
+            monitored_scores.purchase_probability, actual.purchase_probability
+        )
+        assert (outputs / "monitored/monitoring.png").exists()
         image_id = subprocess.check_output(
             ["docker", "image", "inspect", image, "--format", "{{.Id}}"], text=True
         ).strip()
@@ -201,6 +227,7 @@ def check_container(image, report_path=None):
             "fixture": "synthetic",
             "default_container_user": user,
             "runtime_isolation_verified": True,
+            "monitoring_verified": True,
             "snapshots": len(actual),
             "probability_parity": True,
             "max_probability_difference": float(

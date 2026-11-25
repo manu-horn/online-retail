@@ -49,22 +49,26 @@ See [full results](docs/results.md), [evaluation](docs/evaluation.md) and the
 
 ## Current project status
 
-| Implemented locally | Next | Planned later |
-|---|---|---|
-| Cleansing, customer analysis and past-only features | SageMaker container contracts | S3, SageMaker Training and Batch Transform |
-| Temporal tuning, policy selection and test evaluation | Broader operational logging coverage | Scheduling, monitoring and release management |
-| Group/weekly diagnostics and SHAP explanations | | Release automation and cloud operations |
-| MLflow tracking and training/evaluation scripts | | Optional interactive API |
-| Verified training/inference containers and passing CI for both | | |
-| Fixed-parameter final-fit reproduction with MLflow and holdout parity | | |
+The intended scope is **data preparation → training → MLflow tracking → saved
+model → batch predictions → basic monitoring**.
 
-Local batch scoring now packages the frozen pipeline/policy, validates cutoff
-coverage and writes versioned scores with structured logs. The historical replay
-matches saved predictions exactly. See [local inference](docs/inference.md).
+| Part | Status |
+|---|---|
+| Data analysis, past-only features and temporal model evaluation | Implemented |
+| MLflow tracking and fixed-parameter training reproduction | Implemented locally |
+| Versioned bundles, batch scoring and JSON logs | Implemented locally; predictions match the saved replay |
+| Docker images and GitHub Actions code/container checks | Implemented |
+| Basic drift reports and mature-outcome monitoring | Implemented locally |
+| S3 → SageMaker Training → Batch Transform replay | Adapters verified locally; AWS access/cost checks unresolved |
 
-This is a completed modeling study with local experiment tracking. Cloud deployment
-and production operations are not implemented. See the [roadmap](docs/roadmap.md)
-and [AWS workflow plan](docs/aws-batch-workflow.md).
+The preferred cloud budget is **$0** and the configured AWS account is currently
+closed. No cloud resources have been created by this workflow. The main remaining
+milestone is one small AWS replay if access and costs allow it.
+
+Scheduling, dashboards, notifications, registry promotion, automated rollback and
+automatic retraining are optional extensions, not requirements for this project.
+See the [simple roadmap](docs/roadmap.md), [monitoring guide](docs/monitoring.md)
+and [AWS replay plan](docs/aws-batch-workflow.md).
 
 ## Set up the environment
 
@@ -146,6 +150,8 @@ Git-ignored.
 | `src/online_retail/analysis/` | Exploratory plots and diagnostics |
 | `src/online_retail/modeling/` | Models, temporal evaluation, explanations, workflows and tracking |
 | `src/online_retail/serving/` | Frozen bundles and batch inference |
+| `src/online_retail/monitoring/` | Development reference, drift reports and mature outcomes |
+| `src/online_retail/sagemaker/` | Training paths, prepared JSON Lines and Batch Transform HTTP adapter |
 | `scripts/` | Training, evaluation, tracking, packaging and scoring entrypoints |
 | `configs/` | Prediction dates and tracking settings |
 | `tests/` | Data, temporal, metric, policy, explanation and tracking checks |
@@ -159,7 +165,9 @@ Git-ignored.
 - [Results and saved artifacts](docs/results.md)
 - [Evaluation notebook guide](docs/evaluation.md)
 - [Local inference guide](docs/inference.md)
+- [Local monitoring workflow](docs/monitoring.md)
 - [Docker and CI guide](docs/containers-ci.md)
+- [SageMaker container contracts](docs/sagemaker-contracts.md)
 - [Fixed-parameter training reproduction](docs/training-reproduction.md)
 - [MLflow guide](docs/mlflow.md)
 - [MLOps roadmap](docs/roadmap.md)

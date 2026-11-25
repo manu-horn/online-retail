@@ -129,8 +129,8 @@ This integration provides tracking, not a production inference service.
 Integration tests train a small chronological fixture, verify metrics/provenance,
 reload a logged model and compare probabilities, import artifacts without mutation,
 and confirm failed runs close correctly. The original evaluated model remains
-unchanged. AWS jobs, registry approvals and production scheduling are later roadmap
-milestones; see [AWS workflow](aws-batch-workflow.md).
+unchanged. The optional next cloud milestone is one [AWS replay](aws-batch-workflow.md).
+Registry promotion and production scheduling are deferred extensions.
 
 ## Fixed-parameter reproduction
 
@@ -146,3 +146,18 @@ For container training, `reproduce_fit.py --tracking-dir <writable-path>` separa
 tracking storage from read-only application code. Mount that directory at the same
 absolute path inside and outside Docker so logged model URIs remain loadable from
 the host. See the [training container commands](containers-ci.md#build-and-reproduce-training).
+
+
+The SageMaker contract adapter writes portable reproduction reports and model
+bundles to the managed output paths. It does not create a job-local SQLite store.
+After downloading job outputs, use the existing saved-results import workflow
+with the processed datasets to record them in local MLflow. A remote tracking
+server is a separate decision. See [SageMaker contracts](sagemaker-contracts.md).
+
+
+Completed monitored scoring directories can be imported with `track_results.py`.
+`monitoring.json` scalar metrics use the `monitoring.` prefix; tags connect the
+scoring run, source model and reference. PNG/JSON/Markdown reports are local files
+(the import logs PNG/JSON/CSV artifacts), and customer-level Parquet scores are
+not uploaded. Mature-outcome `report.json` uses the existing `reported.` prefix.
+See [monitoring commands](monitoring.md).

@@ -15,7 +15,8 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["ruff>=0.11,<1", "pytest>=8,<10", {include-group = "training"}]
+dev = ["ruff>=0.11,<1", "pytest>=8,<10", {include-group = "training"}, {include-group = "serving"}]
+serving = ["flask>=3.1,<4", "gunicorn>=26,<27"]
 training = ["optuna>=5.1.0", "lightgbm>=4.7.0", "shap>=0.54.1", "mlflow>=3,<4"]
 notebooks = ["ipykernel>=6,<8", "jupyterlab>=4,<5", "matplotlib>=3.9,<4", "seaborn>=0.13,<1"]
 

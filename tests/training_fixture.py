@@ -11,6 +11,7 @@ from xgboost import XGBClassifier
 
 from online_retail.modeling.baseline import fit_baseline
 from online_retail.modeling.reproduction import fitting_population
+from online_retail.serving.bundle import checksum
 
 
 def make_reproduction_inputs(tmp_path):
@@ -62,3 +63,16 @@ def make_reproduction_inputs(tmp_path):
     # Deliberately unreadable: reproduction must never load final test data.
     (data / "test.parquet").write_text("DO NOT READ TEST")
     return data, reference
+
+
+def make_batch_records(data, bundle):
+    policy = json.loads((bundle / "frozen_policy.json").read_text())
+    manifest = json.loads((bundle / "manifest.json").read_text())
+    rows = pd.read_parquet(data / "refit.parquet").iloc[:2].copy()
+    rows["cutoff"] = "2010-07-19"
+    rows = rows.drop(columns="RepurchaseWithin50Days")
+    rows["coverage_end"] = "2010-07-19"
+    rows["feature_version"] = manifest["feature_version"]
+    rows["data_version"] = checksum(data / "refit.parquet")
+    assert set(policy["feature_columns"]).issubset(rows.columns)
+    return rows.to_json(orient="records", lines=True)
