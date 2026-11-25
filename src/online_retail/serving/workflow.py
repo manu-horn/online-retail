@@ -14,7 +14,14 @@ from online_retail.serving.inference import predict_features, scoring_features
 
 
 def run_scoring(
-    purchases_path: Path, bundle: Path, cutoff, coverage_end, output: Path, logger=None, run_id=None
+    purchases_path: Path,
+    bundle: Path,
+    cutoff,
+    coverage_end,
+    output: Path,
+    logger=None,
+    run_id=None,
+    monitoring_reference=None,
 ):
     logger = logger or logging.getLogger("online_retail")
     run_id = run_id or uuid.uuid4().hex
@@ -60,11 +67,44 @@ def run_scoring(
             },
             "elapsed_seconds": round(time.perf_counter() - started, 3),
         }
+        monitoring = None
+        if monitoring_reference is not None:
+            from online_retail.monitoring.core import (
+                history_fingerprint,
+                history_groups,
+                monitor_batch,
+            )
+
+            monitoring = monitor_batch(
+                features, scores, monitoring_reference, manifest, policy["threshold"]
+            )
+            scores["history_group"] = history_groups(features.invoice_count)
+            metadata["history_sha256"] = history_fingerprint(purchases, cutoff)
+            metadata["monitoring_status"] = monitoring["status"]
+            metadata["monitoring_reference_version"] = monitoring["reference_version"]
+            monitoring["run_id"] = run_id
+            monitoring["data_version"] = versions["data_version"]
+            logger.log(
+                logging.WARNING if monitoring["warnings"] else logging.INFO,
+                "monitoring_completed",
+                extra={
+                    "context": {
+                        **context,
+                        "status": monitoring["status"],
+                        "warning_codes": monitoring["warnings"],
+                    }
+                },
+            )
         output.parent.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=output.parent) as temp:
             staged = Path(temp) / "scores"
             staged.mkdir()
             scores.to_parquet(staged / "scores.parquet", index=False)
+            if monitoring is not None:
+                from online_retail.monitoring.reports import write_monitoring
+
+                write_monitoring(monitoring, staged)
+            metadata["elapsed_seconds"] = round(time.perf_counter() - started, 3)
             (staged / "run.json").write_text(json.dumps(metadata, indent=2) + "\n")
             staged.rename(output)
         logger.info(

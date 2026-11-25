@@ -1,59 +1,87 @@
-# MLOps roadmap
+# MLOps roadmap and tools
 
-## Completed locally
+The immediate goal is a reproducible local batch workflow, with optional AWS
+execution once account access and costs allow it. Preferred cloud spend is **$0**.
+The user confirmed that the configured AWS account is closed; support/account
+recovery is pending. No cloud resources have been created by this workflow.
 
-- uv environment, installable package and repository foundation.
-- Two-sheet ingestion, source checksum and purchase cleansing with removal reports.
-- Sales/customer exploration, sparse-history handling and weekly past-only features.
-- Binary 50-day labels, complete follow-up and chronological partitions.
-- Training-only RFM diagnostics, normalized scores and descriptive customer segments.
-- Processed-feature analysis, redundancy and multicollinearity diagnostics.
-- Logistic references and Optuna tree searches with expanding temporal folds.
-- Calibration diagnostics without fitted recalibration.
-- ROC-AUC model selection, final fitting, later policy holdout and frozen threshold.
-- Final test evaluation; local model, predictions, policy and reports saved.
-- Local MLflow tracking, saved-artifact imports and executable development training/evaluation scripts.
-- Frozen model/policy bundles, local cutoff scoring, JSON application logs and historical inference parity.
-- Fixed-parameter final-fit reproduction, holdout prediction parity and MLflow lineage.
-- Locally verified SageMaker training/HTTP adapters, JSON Lines export and contract tests.
+## Already working
 
-See [results](results.md) for the selected XGBoost model and threshold 0.62.
-Test has already been evaluated; it is not a fresh selection dataset.
+- Data provenance/cleansing and past-only weekly customer features: pandas, Parquet, Python.
+- Chronological tuning, frozen XGBoost/threshold and evaluation: scikit-learn, XGBoost, Optuna.
+- Experiment tracking and reproducible fixed-parameter fitting: MLflow and SQLite.
+- Versioned bundles, scoring and structured events: Python, SHA-256 manifests, JSON logs.
+- CLI and SageMaker-compatible training/inference images: Docker, uv, Flask/Gunicorn.
+- CI for code and container contracts: pytest, Ruff, GitHub Actions.
+- Initial local monitoring: fixed reference, drift/missingness, prediction/contact
+  distributions, history groups, JSON/Markdown/PNG reports and optional MLflow import.
+- Separate mature-outcome monitoring: scikit-learn metrics, saved scoring cohorts,
+  50-day coverage gate and historical-backfill detection.
 
-## Next: batch-oriented AWS workflow
+See [monitoring commands](monitoring.md), [training reproduction](training-reproduction.md),
+[Docker/CI](containers-ci.md) and [SageMaker contracts](sagemaker-contracts.md).
+The evaluated model remains frozen. The historical test has already been inspected.
 
-Follow the [AWS batch workflow roadmap](aws-batch-workflow.md), one milestone at a time:
+## Remaining local work, in order
 
-1. **Local commands:** build cutoff features, reproduce fixed-parameter training,
-   package the model/policy, and score without notebooks.
-2. **Versioning and tracking:** manifests and local MLflow connect data, code,
-   environment, models, policies and outputs.
-3. **Containers and CI:** reproducible training/inference images and automated checks.
-4. **First AWS replay:** S3 → SageMaker Training → model in S3 → Batch Transform
-   → probabilities and targeting table in S3.
-5. **Orchestration:** move features to Processing, then connect working jobs with
-   SageMaker Pipelines and add weekly scoring triggers.
-6. **Operations:** monitor jobs/data and delayed outcomes; define promotion,
-   rollback, retraining and new evaluation periods.
+| Step | Work still needed | Tools | Done when |
+|---|---|---|---|
+| 1 | Review/tune monitoring limits using development periods; document owner and response for each warning | Current Python monitoring reports, `configs/monitoring.toml` | Review rules are justified; expected cohort aging is distinguished from input failures |
+| 2 | Combine batch statuses and delayed outcomes into a weekly trend/run index | pandas, Parquet/CSV, matplotlib, existing MLflow UI | One view shows successes/failures, drift, contact rates, matured metrics and overdue outcomes |
+| 3 | Make ingestion coverage/backfill handling explicit and run feature dataset generation without notebooks | Existing preprocessing/features modules, Python CLI, checksums/manifests | A new data delivery has trusted coverage metadata and reproducible training/scoring inputs |
+| 4 | Schedule weekly scoring and due outcome checks, with retry/deduplication rules | Local cron initially, Python commands, JSON logs | A cutoff/version has an identifiable published result; retries do not duplicate or overwrite it |
+| 5 | Add operational notifications and a response runbook | Scheduler exit status, JSON logs; notification destination to be chosen | Job failures and actionable warnings reach an owner; recovery steps are tested |
+| 6 | Register releases, define promotion criteria and test rollback | MLflow Model Registry aliases, bundle/policy/reference manifests, Git | A release pins all artifacts; a previous approved release can be restored and replayed |
+| 7 | Automate image release/delivery after passing checks | Docker, GitHub Actions, GitHub Container Registry (GHCR) | A tagged release publishes code-only images by digest; promotion remains separate |
+| 8 | Back up artifacts/tracking and define retention/restore procedures | Filesystem archives, SQLite backups, manifests | A trusted model, policy, reference and tracking history can be restored on another machine |
+| 9 | Define retraining triggers and the next validation population | Existing Python/scikit-learn temporal evaluation; Optuna only if justified | Drift prompts investigation; a candidate is evaluated on an appropriate new forward period before promotion |
+| 10 | Refresh the README/demo and verify fresh-clone instructions | Markdown, CLI commands, GitHub Actions | A reader can reproduce the local lifecycle and understand every implemented/planned boundary |
 
-**Current implementation:** local tracking, development training/evaluation scripts,
-versioned frozen bundles and batch scoring with structured logs are implemented.
-See [MLflow integration](mlflow.md), [local inference](inference.md) and
-[training reproduction](training-reproduction.md). Fixed-parameter fitting matches
-the saved policy-holdout predictions exactly, both on the host and in the training
-container. Separate training/inference targets and local synthetic checks pass.
-GitHub Actions checks both targets; all three jobs (code checks, inference and
-training) passed for commit `161b858`.
-See [Docker and CI](containers-ci.md). [SageMaker contracts](sagemaker-contracts.md)
-now pass local synthetic and retail replay checks and remote CI for commit `96cdfc2`.
-The selected AWS profile is `purchase-propensity`, region `us-east-2`, with a
-preferred $0 out-of-pocket budget. Free-tier/credit eligibility is not yet verified;
-cloud resource creation and jobs remain deferred.
+Steps 1–2 are the recommended next work. The initial monitoring implementation is
+complete, but operational thresholds and unattended scheduling are not validated.
+For the static dataset, scheduling must advance explicit historical replay cutoffs;
+it must not score today using a feed that ends in 2011. A real recurring deployment
+needs a real ingestion source and trustworthy coverage metadata.
+Repeated historical test reuse is not a fresh final evaluation. Truly new model
+quality claims require suitable new/unseen data; the UCI dataset is a static replay.
 
-Training and weekly scoring are separate. Preserve the current evaluated model
-and policy while reproducing them. The first cloud run uses selected parameters,
-not a fresh hyperparameter search. Test has already been evaluated.
+GHCR is the proposed no-AWS image delivery destination. GitHub currently documents
+public packages as free and container-registry storage/bandwidth as free; review
+current terms before publishing. Images contain code/dependencies, not datasets,
+credentials or trained models. Publishing is **not implemented or performed yet**.
+[GitHub billing](https://docs.github.com/en/billing/concepts/product-billing/github-packages).
 
-APIs, interactive interfaces and continuously running services are deferred.
-Real campaign economics and production acceptance criteria remain open decisions;
-controlled campaign experiments are outside current implementation scope.
+MLflow tracking is already present; registry aliases, release approval and rollback
+automation are not. [MLflow registry concepts](https://mlflow.org/docs/latest/ml/model-registry/).
+No additional orchestration or monitoring framework is required for the first local
+workflow: it uses the existing Python environment and generates portable artifacts.
+
+## Conditional AWS work
+
+This remains optional while the account is inaccessible or a zero-charge replay
+cannot be established. The selected profile is `purchase-propensity`, region
+`us-east-2`; eligibility/remaining credits have not been verified.
+
+| Order | Remaining work | Planned tools |
+|---|---|---|
+| A | Resolve account closure, verify eligibility/credits, choose instance limits and retention | AWS Settings/Basic Support, read-only AWS CLI, billing information |
+| B | Configure scoped permissions, private data/artifact storage and image repositories | IAM, S3, ECR; configuration through AWS CLI/SDK |
+| C | Run one fixed historical training job and Batch Transform replay; verify parity and cleanup | SageMaker Training, Batch Transform, current container adapters, CloudWatch logs |
+| D | Automate the working steps and weekly triggers | SageMaker Processing/Pipelines and EventBridge, after the manual replay works |
+| E | Route cloud failure/data-quality notifications and test promotion/rollback | Our monitoring reports, CloudWatch/SNS, versioned artifacts and MLflow release metadata |
+
+Budget alerts are not a guarantee of zero charges. No cloud jobs or resource
+creation should be inferred from the presence of adapters or this plan. See the
+[AWS batch workflow](aws-batch-workflow.md) for the proposed architecture.
+We retain custom Python monitoring; AWS states that SageMaker Model Monitor is
+no longer open to new customers. [AWS availability notice](https://docs.aws.amazon.com/sagemaker/latest/dg/model-monitor.html).
+
+## Optional extensions, outside the core batch milestone
+
+- Interactive customer-scoring API or UI if a user needs it; choose FastAPI or a UI
+  framework only when its requirements are defined. The Flask adapter serves the
+  Batch Transform contract, not a complete end-user application.
+- Business cost validation and controlled campaign experiments before claiming
+  incremental marketing benefit. Existing campaign penalties are illustrative.
+- More product features or model families only when a new evaluation plan supports
+  the experiment; adding them is not required to complete the engineering workflow.

@@ -153,3 +153,11 @@ bundles to the managed output paths. It does not create a job-local SQLite store
 After downloading job outputs, use the existing saved-results import workflow
 with the processed datasets to record them in local MLflow. A remote tracking
 server is a separate decision. See [SageMaker contracts](sagemaker-contracts.md).
+
+
+Completed monitored scoring directories can be imported with `track_results.py`.
+`monitoring.json` scalar metrics use the `monitoring.` prefix; tags connect the
+scoring run, source model and reference. PNG/JSON/Markdown reports are local files
+(the import logs PNG/JSON/CSV artifacts), and customer-level Parquet scores are
+not uploaded. Mature-outcome `report.json` uses the existing `reported.` prefix.
+See [monitoring commands](monitoring.md).

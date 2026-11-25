@@ -162,3 +162,10 @@ run covers the initial inference-only workflow.
 
 Smoke-test assertions include subprocess exit codes, stdout and stderr so a
 container failure is visible in CI logs rather than only an assertion location.
+
+
+The inference smoke check now also creates a synthetic monitoring reference and
+runs `score.py --monitoring-reference`, verifying unchanged probabilities and
+JSON/Markdown/PNG reports without adding MLflow to the image. Local verification
+is in `artifacts/ci/monitoring-container.json`; the extension has not run remotely yet.
+See [local monitoring](monitoring.md).

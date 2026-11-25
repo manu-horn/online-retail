@@ -122,3 +122,8 @@ SageMaker Batch Transform uses the same frozen pipeline through a separate HTTP
 adapter receiving prepared snapshot JSON Lines. The training adapter exports a
 compatible bundle under `/opt/ml/model`. Both are verified locally; see
 [SageMaker contracts](sagemaker-contracts.md). No AWS job has been launched.
+
+
+For one-command scoring plus aggregate checks, add `--monitoring-reference` to the
+existing scoring command. It writes distribution/missingness reports and captures
+the scoring-time history group for later outcome evaluation. See [monitoring](monitoring.md).

@@ -222,6 +222,17 @@ def log_completed_outputs(output: Path, data_dir: Path, include_trials=True):
     if (output / "overall.csv").exists():
         series = pd.read_csv(output / "overall.csv", index_col=0).iloc[:, 0]
         _metrics(series.to_dict(), "evaluation.test.")
+    if (output / "monitoring.json").exists():
+        monitoring = json.loads((output / "monitoring.json").read_text())
+        _metrics(monitoring, "monitoring.")
+        mlflow.set_tags(
+            {
+                "monitoring.status": monitoring["status"],
+                "monitoring.scoring_run_id": monitoring["run_id"],
+                "monitoring.source_model_sha256": monitoring["model_version"],
+                "monitoring.reference_sha256": monitoring["reference_version"],
+            }
+        )
     if (output / "report.json").exists():
         _metrics(json.loads((output / "report.json").read_text()), "reported.")
     model_path = next(

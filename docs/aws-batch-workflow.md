@@ -47,7 +47,8 @@ retail replay; see [container contracts](sagemaker-contracts.md). AWS execution 
 - Selected local AWS profile: `purchase-propensity`.
 - Workload region: `us-east-2` (Ohio).
 - Preferred out-of-pocket project spend: **$0**.
-- Free-tier/credit eligibility has not yet been verified. No cloud resources have
+- The user confirmed that this account is closed; support recovery is pending.
+  Free-tier/credit eligibility has not yet been verified. No cloud resources have
   been created and no managed jobs have been launched by this workflow.
 
 Continue with local Docker and CI while checking account allowances through
@@ -150,6 +151,12 @@ visible, and the workflow does not silently overwrite approved outputs. Keep
 training triggers separate from the weekly scoring schedule.
 
 ### 6. Monitoring and release management
+
+Initial drift/missingness reports and gated mature-outcome evaluation now run
+locally with the existing Python stack; see [monitoring](monitoring.md). Weekly
+aggregation, scheduling, operational notifications and release controls remain
+planned. These functions can later run alongside cloud jobs without relying on
+a managed monitoring product.
 
 Track source coverage, missingness, feature/score distributions, contact rate and
 job failures. Once 50-day outcomes mature, report ranking, calibration and policy

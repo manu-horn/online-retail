@@ -51,16 +51,18 @@ See [full results](docs/results.md), [evaluation](docs/evaluation.md) and the
 
 | Implemented locally | Next | Planned later |
 |---|---|---|
-| Cleansing, customer analysis and past-only features | First AWS replay setup | S3, SageMaker Training and Batch Transform |
-| Temporal tuning, policy selection and test evaluation | Broader operational logging coverage | Scheduling, monitoring and release management |
+| Cleansing, customer analysis and past-only features | Monitoring review and weekly trends | Optional S3, SageMaker Training and Batch Transform |
+| Temporal tuning, policy selection and test evaluation | Scheduling and operational notifications | Release management and optional cloud orchestration |
 | Group/weekly diagnostics and SHAP explanations | | Release automation and cloud operations |
 | MLflow tracking and training/evaluation scripts | | Optional interactive API |
 | Verified training/inference containers and passing CI for both | | |
 | Fixed-parameter final-fit reproduction with MLflow and holdout parity | | |
-| SageMaker training/Batch Transform adapters with passing CI | AWS free-tier/credit verification | |
+| SageMaker training/Batch Transform adapters with passing CI | Account recovery and cost verification | |
+| Local drift reports and mature-outcome monitoring | Promotion/rollback and image delivery | |
 
 Local batch scoring now packages the frozen pipeline/policy, validates cutoff
-coverage and writes versioned scores with structured logs. The historical replay
+coverage and writes versioned scores with structured logs. Optional monitoring compares
+fixed development distributions and evaluates outcomes only after 50 days. The historical replay
 matches saved predictions exactly. See [local inference](docs/inference.md).
 
 This is a completed modeling study with local experiment tracking. Cloud deployment
@@ -147,6 +149,7 @@ Git-ignored.
 | `src/online_retail/analysis/` | Exploratory plots and diagnostics |
 | `src/online_retail/modeling/` | Models, temporal evaluation, explanations, workflows and tracking |
 | `src/online_retail/serving/` | Frozen bundles and batch inference |
+| `src/online_retail/monitoring/` | Development reference, drift reports and mature outcomes |
 | `src/online_retail/sagemaker/` | Training paths, prepared JSON Lines and Batch Transform HTTP adapter |
 | `scripts/` | Training, evaluation, tracking, packaging and scoring entrypoints |
 | `configs/` | Prediction dates and tracking settings |
@@ -161,6 +164,7 @@ Git-ignored.
 - [Results and saved artifacts](docs/results.md)
 - [Evaluation notebook guide](docs/evaluation.md)
 - [Local inference guide](docs/inference.md)
+- [Local monitoring workflow](docs/monitoring.md)
 - [Docker and CI guide](docs/containers-ci.md)
 - [SageMaker container contracts](docs/sagemaker-contracts.md)
 - [Fixed-parameter training reproduction](docs/training-reproduction.md)
