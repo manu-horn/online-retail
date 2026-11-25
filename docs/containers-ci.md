@@ -85,7 +85,8 @@ and manual dispatch. It checks the lockfile, Ruff lint/format and pytest before
 building both targets with commit-SHA/target tags. Actions are pinned by commit.
 The two CLI container checks run as independent matrix jobs. A separate
 `sagemaker-contracts` job builds both adapters and checks the train/archive/serve
-sequence using synthetic data. The new adapter job awaits remote execution.
+sequence using synthetic data. The adapter job passed remotely for commit `96cdfc2`; see
+[run 45679024871](https://github.com/manu-horn/online-retail/actions/runs/45679024871).
 
 The inference check runs a synthetic end-to-end fixture:
 

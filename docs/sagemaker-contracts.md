@@ -117,7 +117,8 @@ fixed `1e-7` tolerance. Evidence is in that job directory's `http-replay/report.
 The final minimal training image was also verified in `retail-job-002`; it
 produced a byte-identical bundle to the one used for that HTTP replay.
 Original evaluated artifacts remain unchanged. No test labels were read, no policy
-was reselected and no AWS resources were created. The new CI job has not run remotely.
+was reselected and no AWS resources were created. The dedicated CI job also passed remotely for commit `96cdfc2`;
+see [run 45679024871](https://github.com/manu-horn/online-retail/actions/runs/45679024871).
 
 ## Sources
 

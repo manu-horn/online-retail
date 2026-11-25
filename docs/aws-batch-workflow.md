@@ -42,6 +42,25 @@ training reproduction now passes local holdout parity checks; see
 SageMaker training/Batch Transform adapters now pass local contract checks and a
 retail replay; see [container contracts](sagemaker-contracts.md). AWS execution remains planned. See [local inference](inference.md).
 
+## Current execution constraints
+
+- Selected local AWS profile: `purchase-propensity`.
+- Workload region: `us-east-2` (Ohio).
+- Preferred out-of-pocket project spend: **$0**.
+- Free-tier/credit eligibility has not yet been verified. No cloud resources have
+  been created and no managed jobs have been launched by this workflow.
+
+Continue with local Docker and CI while checking account allowances through
+read-only access. Before any cloud replay, verify the account's actual plan,
+remaining credits, expiry and applicable service/resource limits. Do not assume
+that SageMaker, image storage, data storage or logs are free just because the
+account has a Free Tier label. Budget alerts alone are not a hard spending cap.
+If a zero-charge replay cannot be established, keep the AWS execution optional
+and retain the completed local MLOps workflow.
+
+See [AWS Free Tier details](https://aws.amazon.com/free/free-tier-faqs/) and
+[account-plan status API](https://docs.aws.amazon.com/aws-cost-management/latest/APIReference/API_freetier_GetAccountPlanState.html).
+
 ## Milestones
 
 ### 1. Local training and scoring interface — complete locally
@@ -97,7 +116,7 @@ training/inference contracts pass checks. No cloud jobs are needed yet.
 **Current evidence:** separate CLI training/inference targets build and pass local
 synthetic checks. Full retail training matches saved holdout probabilities exactly
 inside Docker, with MLflow artifacts reloadable on the host. The full CI matrix passed remotely for commit `161b858`. SageMaker job/HTTP adapters now pass local emulation and retail replay checks.
-Their new CI job awaits remote execution. Image publishing and ECR remain pending. See [Docker and CI](containers-ci.md).
+Their new CI job passed remotely for commit `96cdfc2`. Image publishing and ECR remain pending. See [Docker and CI](containers-ci.md).
 
 ### 4. First AWS training and batch prediction run
 

@@ -45,8 +45,10 @@ container. Separate training/inference targets and local synthetic checks pass.
 GitHub Actions checks both targets; all three jobs (code checks, inference and
 training) passed for commit `161b858`.
 See [Docker and CI](containers-ci.md). [SageMaker contracts](sagemaker-contracts.md)
-now pass local synthetic and retail replay checks; the new CI job awaits its first
-remote run. AWS roles, region, storage and spending limits remain to be configured.
+now pass local synthetic and retail replay checks and remote CI for commit `96cdfc2`.
+The selected AWS profile is `purchase-propensity`, region `us-east-2`, with a
+preferred $0 out-of-pocket budget. Free-tier/credit eligibility is not yet verified;
+cloud resource creation and jobs remain deferred.
 
 Training and weekly scoring are separate. Preserve the current evaluated model
 and policy while reproducing them. The first cloud run uses selected parameters,

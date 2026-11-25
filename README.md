@@ -57,7 +57,7 @@ See [full results](docs/results.md), [evaluation](docs/evaluation.md) and the
 | MLflow tracking and training/evaluation scripts | | Optional interactive API |
 | Verified training/inference containers and passing CI for both | | |
 | Fixed-parameter final-fit reproduction with MLflow and holdout parity | | |
-| Locally verified SageMaker training/Batch Transform adapters | Remote contract CI verification | |
+| SageMaker training/Batch Transform adapters with passing CI | AWS free-tier/credit verification | |
 
 Local batch scoring now packages the frozen pipeline/policy, validates cutoff
 coverage and writes versioned scores with structured logs. The historical replay
