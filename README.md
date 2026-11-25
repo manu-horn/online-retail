@@ -51,10 +51,14 @@ See [full results](docs/results.md), [evaluation](docs/evaluation.md) and the
 
 | Implemented locally | Next | Planned later |
 |---|---|---|
-| Cleansing, customer analysis and past-only features | Batch inference/serving interface | Docker and GitHub Actions CI/CD |
-| Temporal tuning, policy selection and test evaluation | Structured operational logging | S3, SageMaker Training and Batch Transform |
-| Group/weekly diagnostics and SHAP explanations | Complete versioned model/policy bundle | Scheduling, monitoring and release management |
-| MLflow tracking and training/evaluation scripts | Historical scoring replay | Optional interactive API |
+| Cleansing, customer analysis and past-only features | Fixed-parameter training reproduction | Docker and GitHub Actions CI/CD |
+| Temporal tuning, policy selection and test evaluation | Broader operational logging coverage | S3, SageMaker Training and Batch Transform |
+| Group/weekly diagnostics and SHAP explanations | Container and CI verification | Scheduling, monitoring and release management |
+| MLflow tracking and training/evaluation scripts | | Optional interactive API |
+
+Local batch scoring now packages the frozen pipeline/policy, validates cutoff
+coverage and writes versioned scores with structured logs. The historical replay
+matches saved predictions exactly. See [local inference](docs/inference.md).
 
 This is a completed modeling study with local experiment tracking. Cloud deployment
 and production operations are not implemented. See the [roadmap](docs/roadmap.md)
@@ -135,7 +139,8 @@ Git-ignored.
 | `src/online_retail/features/` | Snapshot features, labels, RFM and dataset generation |
 | `src/online_retail/analysis/` | Exploratory plots and diagnostics |
 | `src/online_retail/modeling/` | Models, temporal evaluation, explanations, workflows and tracking |
-| `scripts/` | Thin training, evaluation and artifact-import entrypoints |
+| `src/online_retail/serving/` | Frozen bundles and batch inference |
+| `scripts/` | Training, evaluation, tracking, packaging and scoring entrypoints |
 | `configs/` | Prediction dates and tracking settings |
 | `tests/` | Data, temporal, metric, policy, explanation and tracking checks |
 | `docs/` | Version-controlled project guides |
@@ -147,6 +152,7 @@ Git-ignored.
 - [Modeling workflow](docs/modeling.md)
 - [Results and saved artifacts](docs/results.md)
 - [Evaluation notebook guide](docs/evaluation.md)
+- [Local inference guide](docs/inference.md)
 - [MLflow guide](docs/mlflow.md)
 - [MLOps roadmap](docs/roadmap.md)
 - [AWS batch workflow](docs/aws-batch-workflow.md)

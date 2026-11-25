@@ -34,12 +34,13 @@ a later milestone moves it to SageMaker Processing.
 ## Current status
 
 Local MLflow tracking, artifact imports and development training/evaluation scripts
-are implemented. Remaining work starts with inference/serving, structured logging
-and a complete model/policy bundle. Docker, CI/CD and AWS execution are planned.
+are implemented, alongside local batch inference, frozen model/policy bundles and
+structured scoring logs. Fixed-parameter training reproduction, Docker/CI and AWS
+execution remain planned. See [local inference](inference.md).
 
 ## Milestones
 
-### 1. Local training and scoring interface — next
+### 1. Local training and scoring interface — partly complete
 
 Reuse package functions behind commands with explicit input/output paths and
 configuration. Notebooks remain exploration and reporting tools.
@@ -51,6 +52,9 @@ configuration. Notebooks remain exploration and reporting tools.
   reproduce the existing final fit; do not rerun Optuna or select from test.
 - Package the fitted preprocessing/model, ordered feature schema, policy and manifest.
 - Score a feature table and apply the specified policy separately.
+
+**Current evidence:** the frozen-model scoring replay is implemented and matches
+saved probabilities exactly; fixed-parameter final-fit reproduction is still pending.
 
 **Done when:** one local historical replay runs without a notebook; predictions
 match the existing model within numerical tolerance; input schema and customer/cutoff
