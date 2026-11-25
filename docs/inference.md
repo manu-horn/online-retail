@@ -112,5 +112,6 @@ overwrite protection and JSON failure events. Source code is under
 `src/online_retail/serving/`; logging is in `src/online_retail/logging.py`.
 
 Fixed-parameter fitting is now verified; see [training reproduction](training-reproduction.md).
-Next work: a training container, broader logging coverage,
-[container/CI verification](containers-ci.md), then the [AWS batch workflow](aws-batch-workflow.md).
+Training and inference containers are now verified locally; see [Docker and CI](containers-ci.md).
+Next work: remote training CI verification, broader logging coverage and
+the [AWS batch workflow](aws-batch-workflow.md).

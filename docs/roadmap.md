@@ -39,9 +39,10 @@ Follow the [AWS batch workflow roadmap](aws-batch-workflow.md), one milestone at
 versioned frozen bundles and batch scoring with structured logs are implemented.
 See [MLflow integration](mlflow.md), [local inference](inference.md) and
 [training reproduction](training-reproduction.md). Fixed-parameter fitting matches
-the saved policy-holdout predictions exactly. A training container remains next.
-An inference Dockerfile and GitHub Actions CI workflow are added. Local image build and synthetic container checks pass;
-both GitHub Actions jobs also passed for commit `81a3158`.
+the saved policy-holdout predictions exactly, both on the host and in the training
+container. Separate training/inference targets and local synthetic checks pass.
+GitHub Actions now checks both targets; the expanded matrix awaits its first
+remote run. The earlier inference-only workflow passed for commit `81a3158`.
 See [Docker and CI](containers-ci.md). Cloud resources are not required yet.
 
 Training and weekly scoring are separate. Preserve the current evaluated model

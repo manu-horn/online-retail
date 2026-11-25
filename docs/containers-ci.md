@@ -1,9 +1,9 @@
 # Docker and CI
 
-The Dockerfile packages the existing batch inference commands. Model artifacts and
-purchase data are mounted at runtime, keeping the frozen model and threshold 0.62
-separate from the image. This is a command-line inference image; SageMaker's HTTP
-serving contract and a training image remain future work.
+The Dockerfile has separate `training` and `inference` targets. Data and reference
+artifacts are mounted at runtime, keeping the frozen model and threshold 0.62
+separate from both images. A default build still produces inference. These are
+command-line containers; SageMaker job and HTTP serving contracts remain future work.
 
 ## Build and score
 
@@ -35,13 +35,55 @@ Optuna, SHAP or LightGBM. Development installs still include those training tool
 The build context excludes data, artifacts, credentials and Git history.
 `package_model.py` is also available by overriding the entrypoint with `python`.
 
+## Build and reproduce training
+
+The training target adds the locked `training` dependency group, the reproduction
+entrypoint and source/configuration files for MLflow provenance. It does not include
+notebooks, datasets or reference models. From the repository root:
+
+```bash
+docker build --target training --build-arg VCS_REF="$(git rev-parse HEAD)" --tag online-retail:training-local .
+mkdir -p artifacts/container-training
+docker run --rm --network none --read-only --cap-drop ALL \
+  --security-opt no-new-privileges --user "$(id -u):$(id -g)" \
+  --tmpfs /tmp:rw,nosuid,size=256m \
+  --mount "type=bind,source=$PWD/data/processed,target=/input/data,readonly" \
+  --mount "type=bind,source=$PWD/artifacts/final_roc_policy,target=/input/reference,readonly" \
+  --mount "type=bind,source=$PWD/artifacts/container-training,target=$PWD/artifacts/container-training" \
+  online-retail:training-local \
+  --data /input/data --reference /input/reference \
+  --output "$PWD/artifacts/container-training/xgboost-001" \
+  --tracking-dir "$PWD/artifacts/container-training/tracking"
+```
+
+Use a new `--output` directory each time. Input mounts are read-only; the output
+mount contains both the new reproduction and a separate local MLflow store.
+The original host `mlflow.db` is not modified. `--tracking-dir` is also available
+for non-container runs; omitting it retains the usual repository-local defaults.
+
+**Keep the tracking mount's absolute path identical on host and container.** Local
+MLflow stores absolute artifact URIs. A store created under `/output` in a container
+would refer to a path that may not exist on the host. With the command above, inspect
+the container-created runs from the host using:
+
+```bash
+uv run mlflow ui --backend-store-uri "sqlite:///$PWD/artifacts/container-training/tracking/mlflow.db" --host 127.0.0.1 --port 5001
+```
+
+The tracked Git revision uses the build argument when Git is absent in the image.
+Git branch and dirty status are `unknown` there; the logged source archive records
+the files actually executed. A build from uncommitted files is not identified by
+the commit alone. Container image IDs are recorded by the verification harness.
+See [fitting boundaries and parity rules](training-reproduction.md).
+
 ## Automated checks
 
 `.github/workflows/ci.yml` runs on pull requests, pushes to `main` and `feature/**`,
 and manual dispatch. It checks the lockfile, Ruff lint/format and pytest before
-building an image tagged with the commit SHA. Actions are pinned by commit.
+building both targets with commit-SHA/target tags. Actions are pinned by commit.
+The two container checks run as independent matrix jobs.
 
-The container job runs a synthetic end-to-end fixture:
+The inference check runs a synthetic end-to-end fixture:
 
 ```bash
 uv run --locked python tests/container_smoke.py --image online-retail:local --report artifacts/ci/container-smoke.json
@@ -53,12 +95,23 @@ that private inputs and training-only dependencies are absent. Containers run wi
 read-only input mounts/root filesystem and disabled networking. Synthetic data
 means CI needs neither the retail workbook nor saved model artifacts.
 
+The training check uses a tiny chronological fitting population and saved reference:
+
+```bash
+uv run --locked python tests/training_container_smoke.py --image online-retail:training-local --report artifacts/ci/training-smoke.json
+```
+
+It checks exact host/container prediction parity, reference preservation, output
+overwrite rejection, non-root defaults and a host-side reload of the MLflow model.
+Its test Parquet is deliberately unreadable, so accidentally loading test rows
+fails the check. No retail data, AWS credentials or registry access is needed.
+
 These jobs validate code and transport, not model quality or campaign effectiveness.
 There is no image publishing, cloud deployment or CD pipeline yet.
 
 ## Verification status
 
-All 40 existing tests pass; Ruff and actionlint pass. A separate inference-only,
+All 45 tests pass; Ruff and actionlint pass. Both image targets build locally. A separate inference-only,
 non-editable environment successfully packaged and scored the synthetic fixture,
 matching the host's saved probabilities, decisions and schema.
 
@@ -84,3 +137,19 @@ allow additional headroom for image export.
 passed for commit `81a3158`: lockfile, lint, formatting, pytest, image build and
 synthetic container checks all succeeded on a GitHub-hosted runner.
 No image has been published or deployed.
+
+
+The training target also passes its synthetic check, including host-side MLflow
+model reload (`artifacts/ci/training-smoke.json`). The rebuilt inference target
+passes its existing checks (`artifacts/ci/inference-smoke.json`).
+
+A full retail fit inside the training image reproduced all **28,001** holdout
+predictions exactly after fitting **146,415** snapshots. Results are in
+`artifacts/container-training/xgboost-001/`, with MLflow run
+`4b25ec56da7140dd91baef7aefb0816b` in the separate container-training store.
+The reference model/policy are unchanged. The parity summary is
+`artifacts/ci/training-retail-parity.json`.
+
+CI now includes both targets; this expanded matrix has been validated locally
+but has not yet run remotely. The linked successful GitHub run above covers the
+earlier inference-only workflow.

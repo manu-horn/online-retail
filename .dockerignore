@@ -9,5 +9,8 @@
 !scripts/
 !scripts/score.py
 !scripts/package_model.py
+!scripts/reproduce_fit.py
+!configs/
+!configs/tracking.toml
 **/__pycache__
 **/*.py[cod]

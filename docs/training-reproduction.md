@@ -60,12 +60,17 @@ The local reproduction matched all **28,001** saved policy predictions with
 **zero probability difference** and identical decisions. The final verified run is
 saved at `artifacts/reproductions/xgboost-002/`, with MLflow run ID
 `7f707c1b50344ca5a07e251c0a4763d1`. These artifacts are local and Git-ignored.
-The reference model and
-policy remain unchanged. This checks repeatability with the current local inputs
+The reference model and policy remain unchanged. This checks repeatability with the current local inputs
 and environment; it is not a new performance estimate or a guarantee of identical
 results on every platform. The original training run did not save a fitting-input
 fingerprint, so the new checksum cannot retroactively prove original data identity.
 
 Tests exercise parity, no test-data reads, no overwrites, reference preservation,
 population changes, label maturity, failed-parity publication and MLflow lineage.
-A training container and SageMaker execution are separate next steps.
+The same command is available in a separate [training container](containers-ci.md#build-and-reproduce-training).
+SageMaker execution remains a separate next step.
+
+
+The training container repeated the full fit with the same zero-difference result.
+Its output is `artifacts/container-training/xgboost-001/`, in a separate MLflow store.
+See [container commands and verification](containers-ci.md).

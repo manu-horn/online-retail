@@ -140,3 +140,9 @@ pipeline settings, retains the frozen threshold, and compares probabilities on
 the policy holdout. It does not run Optuna or evaluate test rows. The new model
 and parity/provenance report are logged separately from the evaluated reference.
 See [commands and evidence](training-reproduction.md).
+
+
+For container training, `reproduce_fit.py --tracking-dir <writable-path>` separates
+tracking storage from read-only application code. Mount that directory at the same
+absolute path inside and outside Docker so logged model URIs remain loadable from
+the host. See the [training container commands](containers-ci.md#build-and-reproduce-training).

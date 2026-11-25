@@ -26,14 +26,38 @@ COPY src/ ./src/
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev --no-editable
 
-FROM base AS inference
+# Reuse the inference builder, adding only the locked training dependency group.
+FROM builder AS training-builder
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --no-dev --group training --no-editable
+
+FROM base AS runtime
+RUN groupadd --gid 10001 app && useradd --uid 10001 --gid app --no-create-home app
+ENV PATH="/app/.venv/bin:$PATH"
+USER 10001:10001
+
+FROM runtime AS training
+ARG VCS_REF=unknown
+LABEL org.opencontainers.image.title="Online Retail fixed-fit training" \
+      org.opencontainers.image.revision=$VCS_REF
+ENV ONLINE_RETAIL_CODE_REVISION=$VCS_REF \
+    MLFLOW_ENABLE_TELEMETRY=false \
+    MLFLOW_DISABLE_AGENT_HINT=1
+COPY --from=training-builder /app/.venv /app/.venv
+COPY scripts/reproduce_fit.py ./scripts/
+COPY configs/tracking.toml ./configs/
+# Preserve source/configuration for MLflow provenance archives.
+COPY src/ ./src/
+COPY pyproject.toml uv.lock ./
+ENTRYPOINT ["python", "scripts/reproduce_fit.py"]
+CMD ["--help"]
+
+# Keep inference last: a build without --target still produces the small scoring image.
+FROM runtime AS inference
 ARG VCS_REF=unknown
 LABEL org.opencontainers.image.title="Online Retail batch inference" \
       org.opencontainers.image.revision=$VCS_REF
-RUN groupadd --gid 10001 app && useradd --uid 10001 --gid app --no-create-home app
 COPY --from=builder /app/.venv /app/.venv
 COPY scripts/score.py scripts/package_model.py ./scripts/
-ENV PATH="/app/.venv/bin:$PATH"
-USER 10001:10001
 ENTRYPOINT ["python", "scripts/score.py"]
 CMD ["--help"]

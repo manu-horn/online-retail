@@ -1,4 +1,4 @@
-name: Tests and batch inference container
+name: Tests and ML containers
 
 on:
   pull_request:
@@ -41,6 +41,14 @@ jobs:
       - run: uv run --locked pytest -q
 
   container:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: inference
+            smoke: tests/container_smoke.py
+          - target: training
+            smoke: tests/training_container_smoke.py
     needs: checks
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -54,7 +62,7 @@ jobs:
           python-version: '3.12'
           enable-cache: true
       - run: uv sync --locked
-      - name: Build inference image (no model or dataset embedded)
-        run: docker build --pull --build-arg VCS_REF=${{ github.sha }} --tag online-retail:${{ github.sha }} .
-      - name: Check host/container inference parity and failure handling
-        run: uv run --locked python tests/container_smoke.py --image online-retail:${{ github.sha }} --report artifacts/ci/container-smoke.json
+      - name: Build image (no model or dataset embedded)
+        run: docker build --pull --target ${{ matrix.target }} --build-arg VCS_REF=${{ github.sha }} --tag online-retail:${{ github.sha }}-${{ matrix.target }} .
+      - name: Check host/container parity and failure handling
+        run: uv run --locked python ${{ matrix.smoke }} --image online-retail:${{ github.sha }}-${{ matrix.target }} --report artifacts/ci/${{ matrix.target }}-smoke.json

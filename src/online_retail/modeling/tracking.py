@@ -26,15 +26,19 @@ class TrackingConfig:
     root: Path
     uri: str
     experiment: str
+    artifact_dir: Path | None = None
 
     @classmethod
-    def local(cls, root: Path):
+    def local(cls, root: Path, storage_dir: Path | None = None):
         root = root.resolve()
+        storage = Path(storage_dir).resolve() if storage_dir is not None else root
+        storage.mkdir(parents=True, exist_ok=True)
         settings = tomllib.loads((root / "configs/tracking.toml").read_text())
         return cls(
             root,
-            os.environ.get("MLFLOW_TRACKING_URI", f"sqlite:///{root / 'mlflow.db'}"),
+            os.environ.get("MLFLOW_TRACKING_URI", f"sqlite:///{storage / 'mlflow.db'}"),
             os.environ.get("MLFLOW_EXPERIMENT_NAME", settings["experiment_name"]),
+            storage / "mlartifacts",
         )
 
 
@@ -44,7 +48,10 @@ def file_hash(path):
 
 
 def _git(root, *args):
-    result = subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True)
+    try:
+        result = subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True)
+    except FileNotFoundError:
+        return "unknown"
     return result.stdout.strip() if result.returncode == 0 else "unknown"
 
 
@@ -69,7 +76,7 @@ def tracked_run(config: TrackingConfig, name: str, data_dir: Path, mode="trainin
             config.experiment,
             artifact_location=None
             if config.uri.startswith(("http://", "https://"))
-            else (config.root / "mlartifacts").as_uri(),
+            else (config.artifact_dir or config.root / "mlartifacts").as_uri(),
         )
     mlflow.set_experiment(config.experiment)
     with mlflow.start_run(run_name=name) as run:
@@ -79,9 +86,17 @@ def tracked_run(config: TrackingConfig, name: str, data_dir: Path, mode="trainin
                 "provenance.code_context": "logging-time snapshot"
                 if mode == "historical_artifact_import"
                 else "execution snapshot",
-                "git.commit": _git(config.root, "rev-parse", "HEAD"),
+                "git.commit": (
+                    os.environ.get("ONLINE_RETAIL_CODE_REVISION", "unknown")
+                    if _git(config.root, "rev-parse", "HEAD") == "unknown"
+                    else _git(config.root, "rev-parse", "HEAD")
+                ),
                 "git.branch": _git(config.root, "branch", "--show-current"),
-                "git.dirty": str(bool(_git(config.root, "status", "--porcelain"))).lower(),
+                "git.dirty": (
+                    "unknown"
+                    if _git(config.root, "status", "--porcelain") == "unknown"
+                    else str(bool(_git(config.root, "status", "--porcelain"))).lower()
+                ),
                 "target": "RepurchaseWithin50Days",
                 "split.strategy": "expanding_temporal_50d_gap",
             }
