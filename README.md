@@ -11,6 +11,21 @@ one **snapshot**: features summarizing their history at that cutoff. The target 
 with little history or long inactivity remain eligible. No purchase within this
 window does not mean permanent churn.
 
+[Demo and dashboard](docs/demo.md) · [Reproduce from a fresh clone](#reproduce-from-a-fresh-clone)
+· [AWS replay plan](docs/aws-batch-workflow.md)
+
+## Demo at a glance
+
+In the June 6, 2011 replay, the workflow refit the selected model, matched the
+saved policy-holdout probabilities exactly, then scored **4,951 customers** and
+flagged **682** for contact at the frozen **0.62** threshold. With 50 days of
+follow-up, buyer precision was **73.3%** and recall was **40.4%** for that week.
+
+![Monitoring preview comparing purchase probabilities and invoice history groups for the June 6 batch and April 11 reference](docs/images/retail-replay-monitoring.png)
+
+The dashboard export adds outcome metrics by invoice-history group. See the
+[demo walkthrough](docs/demo.md) for the commands and MLflow view.
+
 ## Main results
 
 **XGBoost** was selected by mean weekly ROC-AUC across expanding temporal
@@ -47,28 +62,27 @@ establish that advertising causes additional purchases.
 See [full results](docs/results.md), [evaluation](docs/evaluation.md) and the
 [worked cost example](docs/modeling.md#worked-cost-example-threshold-062).
 
-## Current project status
+## Run the local demo
 
-The intended scope is **data preparation → training → MLflow tracking → saved
-model → batch predictions → basic monitoring**.
+After generating the inputs in [fresh-clone setup](#reproduce-from-a-fresh-clone),
+run these commands from the repository root with a new output directory:
 
-| Part | Status |
-|---|---|
-| Data analysis, past-only features and temporal model evaluation | Implemented |
-| MLflow tracking and fixed-parameter training reproduction | Implemented locally |
-| Versioned bundles, batch scoring and JSON logs | Implemented locally; predictions match the saved replay |
-| Docker images and GitHub Actions code/container checks | Implemented |
-| Basic drift reports and mature-outcome monitoring | Implemented locally |
-| S3 → SageMaker Training → Batch Transform replay | Adapters verified locally; AWS access/cost checks unresolved |
+```bash
+uv run --locked python scripts/demo.py --output artifacts/demo-2011-06-06
+uv run --locked python scripts/demo_dashboard.py artifacts/demo-2011-06-06 --output artifacts/demo-2011-06-06/dashboard.html
+```
 
-The preferred cloud budget is **$0** and the configured AWS account is currently
-closed. No cloud resources have been created by this workflow. The main remaining
-milestone is one small AWS replay if access and costs allow it.
+Open `artifacts/demo-2011-06-06/dashboard.html` in a browser. On Linux, use
+`xdg-open artifacts/demo-2011-06-06/dashboard.html`. The generated
+`summary.md` links to the run reports and lists the MLflow run IDs.
 
-Scheduling, dashboards, notifications, registry promotion, automated rollback and
-automatic retraining are optional extensions, not requirements for this project.
-See the [simple roadmap](docs/roadmap.md), [monitoring guide](docs/monitoring.md)
-and [AWS replay plan](docs/aws-batch-workflow.md).
+## Project status
+
+The local workflow includes fixed-parameter training, MLflow tracking, Docker
+images, batch scoring, drift reports and evaluation after complete follow-up.
+GitHub Actions checks code and container contracts. The SageMaker requests and
+prediction comparison were checked locally. A managed AWS run still depends on
+account access and verified cost coverage. See the [roadmap](docs/roadmap.md).
 
 ## Set up the environment
 
@@ -99,7 +113,8 @@ included**. To reproduce the workflow:
    `data/raw/online_retail_II.xlsx`. Preserve the original file.
 2. Run `uv run --locked python -m online_retail.data.preprocess` to read both
    worksheets and generate cleaned purchases and a provenance/cleansing report.
-3. Follow the notebooks in order using the project kernel:
+3. Run notebooks **01–04** in order using the project kernel to generate the
+   demo inputs. Notebook **05** is an optional evaluation walkthrough.
 
 | Notebook | Purpose |
 |---|---|
@@ -114,6 +129,9 @@ before the next validation period; random row splits are not used. Final fitting
 reserves policy-holdout weeks and a 50-day maturity gap, so it does not fit every
 row in the generated refit pool. See the [modeling protocol](docs/modeling.md).
 
+Notebook 02 generates `data/processed/`. Run notebook 04 through the **final
+ROC-AUC policy** section to generate `artifacts/final_roc_policy/`, including the
+model, frozen policy and policy-holdout predictions required by the demo.
 Notebook 04 loads an existing final report on rerun. Its earlier cells can retrain;
 the ROC-AUC search has a separate rerun switch. Existing notebook outputs document
 the reported experiment. We have already inspected test results, including further
@@ -152,7 +170,7 @@ Git-ignored.
 | `src/online_retail/serving/` | Frozen bundles and batch inference |
 | `src/online_retail/monitoring/` | Development reference, drift reports and mature outcomes |
 | `src/online_retail/sagemaker/` | Training paths, prepared JSON Lines and Batch Transform HTTP adapter |
-| `scripts/` | Training, evaluation, tracking, packaging and scoring entrypoints |
+| `scripts/` | Training, scoring, tracking, demo, dashboard export and AWS replay utilities |
 | `configs/` | Prediction dates and tracking settings |
 | `tests/` | Data, temporal, metric, policy, explanation and tracking checks |
 | `docs/` | Version-controlled project guides |

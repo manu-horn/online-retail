@@ -19,6 +19,7 @@ This is a learning project using a static dataset, not an unattended production 
 | Reproducible environments | Docker, uv lockfile | Training and inference images verified locally |
 | Continuous integration | GitHub Actions, pytest, Ruff | Code and container checks implemented |
 | Basic monitoring | pandas, NumPy, matplotlib, scikit-learn; optional MLflow import | Reports/logs implemented; performance requires complete 50-day follow-up |
+| Shareable demo | One command for the local replay and an offline HTML export | Verified on the June 6 batch |
 | AWS replay | S3, SageMaker Training, Batch Transform; supporting IAM/ECR and job logs | Adapters verified locally; cloud execution deferred |
 
 Commands and details: [local inference](inference.md), [training reproduction](training-reproduction.md),
@@ -26,19 +27,20 @@ Commands and details: [local inference](inference.md), [training reproduction](t
 
 ## What remains for this scope
 
-1. Review the final commands/documentation and verify CI for the completed branch.
-   Keep a short reproducible demo of training, scoring and monitoring.
+The [local demo](demo.md) runs training, scoring and monitoring in one command.
+The [merged GitHub Actions run](https://github.com/manu-horn/online-retail/actions/runs/45695629229) passed.
+
+1. Verify GitHub Actions on the revision containing the demo, dashboard and AWS request utility.
 2. Resolve AWS account access and verify whether the proposed replay can fit the
    preferred **$0 out-of-pocket budget**. The selected profile is
    `purchase-propensity`, region `us-east-2`; the user confirmed the account is closed.
    Recovery/credit eligibility is unresolved.
 3. If access and costs permit, configure the necessary IAM permissions, private S3
-   storage and ECR images; run one SageMaker training job and one Batch Transform
-   job. Compare their outputs with the verified local replay and clean up resources.
+   storage and ECR images. Generate the job requests and run one SageMaker
+   training job and one Batch Transform job. Compare their outputs with the verified local replay and clean up resources.
 
-The local workflow can be demonstrated while AWS is unavailable. Do not describe
-local container checks as cloud deployment. See the [small AWS replay plan](aws-batch-workflow.md).
-No cloud resources have been created by this workflow.
+The [AWS runbook](aws-batch-workflow.md) covers the staged requests, parity check
+and cleanup. The demo and dashboard are available locally during account recovery.
 
 ## Monitoring is sufficient for the initial project
 
@@ -52,7 +54,7 @@ evaluation plan; the existing test period is not a fresh selection dataset.
 
 ## Deferred, not required to finish
 
-Scheduling, dashboards/weekly trend indexes, notifications, MLflow registry
+Scheduling, live dashboards and weekly trend indexes, notifications, MLflow registry
 promotion, automated rollback, GHCR publishing, automatic retraining and managed
 orchestration are optional later extensions. We are not adding them as milestones.
 
